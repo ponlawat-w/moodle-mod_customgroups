@@ -45,11 +45,18 @@ require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 
+$data = [];
+$data['active'] = customgroups_isactive($moduleinstance);
+$data['cancreategroup'] = has_capability('mod/customgroups:creategroup', $modulecontext);
+$data['creategroupurl'] = new moodle_url('/mod/customgroups/create.php', ['id' => $moduleinstance->id]);
+
 $PAGE->set_url('/mod/customgroups/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);
 
 echo $OUTPUT->header();
+
+echo $OUTPUT->render_from_template('mod_customgroups/view', $data);
 
 echo $OUTPUT->footer();

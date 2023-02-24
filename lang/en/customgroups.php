@@ -30,7 +30,7 @@ $string['modulename'] = 'Students\' Custom Groups Module';
 $string['modulenameplural'] = 'Students\' Custom Groups Modules';
 $string['pluginadministration'] = 'Students\' Custom Groups Module Administration';
 $string['customgroups:applygroups'] = 'Apply Groups to Course';
-$string['customgroups:configureinstance'] = 'Configure Module Instance';
+$string['customgroups:addinstance'] = 'Add a Module Instance';
 $string['customgroups:creategroup'] = 'Create a New Group';
 $string['customgroups:joingroup'] = 'Join a Group';
 
@@ -54,3 +54,6 @@ $string['maxmemberspercountry_help'] = 'Maximum number of members for each count
 
 $string['error_maxmemberslessthanminmembers'] = 'The maximum number of members must be greater than the minimum number.';
 $string['error_maxmemberslessthanminmemberspercountry'] = 'The maximum number of members per country must be greater than the minimum number per country.';
+
+$string['creategroup'] = 'Create a new group';
+$string['inactive'] = 'This module is no longer active.';

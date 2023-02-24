@@ -121,3 +121,7 @@ function customgroups_delete_instance($id) {
 
     return true;
 }
+
+function customgroups_isactive($instance) {
+    return $instance->active && (!$instance->timedeactivated || time() < $instance->timedeactivated);
+}
