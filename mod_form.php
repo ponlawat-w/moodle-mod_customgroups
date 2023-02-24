@@ -35,6 +35,31 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
  */
 class mod_customgroups_mod_form extends moodleform_mod {
 
+    private function getgroupingoptions() {
+        $groupings = groups_get_all_groupings($this->_course->id);
+        $options = [
+            0 => get_string('nogrouping', 'mod_customgroups')
+        ];
+        foreach ($groupings as $grouping) {
+            $options[$grouping->id] = $grouping->name;
+        }
+        return $options;
+    }
+
+    public function validation($data, $files)
+    {
+        $errors = parent::validation($data, $files);
+        
+        if ($data['minmembers'] > 0 && $data['maxmembers'] > 0 && $data['maxmembers'] < $data['minmembers']) {
+            $errors['maxmembers'] = get_string('error_maxmemberslessthanminmembers', 'mod_customgroups');
+        }
+        if ($data['minmemberspercountry'] > 0 && $data['maxmemberspercountry'] > 0 && $data['maxmemberspercountry'] < $data['minmemberspercountry']) {
+            $errors['maxmemberspercountry'] = get_string('error_maxmemberslessthanminmemberspercountry', 'mod_customgroups');
+        }
+        
+        return $errors;
+    }
+
     /**
      * Defines forms elements
      */
@@ -47,7 +72,7 @@ class mod_customgroups_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('customgroupsname', 'mod_customgroups'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('name'), array('size' => '64'));
 
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
@@ -57,19 +82,49 @@ class mod_customgroups_mod_form extends moodleform_mod {
 
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->addHelpButton('name', 'customgroupsname', 'mod_customgroups');
 
         // Adding the standard "intro" and "introformat" fields.
-        if ($CFG->branch >= 29) {
-            $this->standard_intro_elements();
-        } else {
-            $this->add_intro_editor();
-        }
+        $this->standard_intro_elements();
 
-        // Adding the rest of mod_customgroups settings, spreading all them into this fieldset
-        // ... or adding more fieldsets ('header' elements) if needed for better logic.
-        $mform->addElement('static', 'label1', 'customgroupssettings', get_string('customgroupssettings', 'mod_customgroups'));
-        $mform->addElement('header', 'customgroupsfieldset', get_string('customgroupsfieldset', 'mod_customgroups'));
+        $mform->addElement('checkbox', 'active', get_string('active'), get_string('openforcreatingorjoining', 'mod_customgroups'));
+        $mform->setDefault('active', true);
+        $mform->addHelpButton('active', 'openforcreatingorjoining', 'mod_customgroups');
+        $mform->setType('active', PARAM_BOOL);
+        
+        $mform->addElement('date_time_selector', 'timedeactivated', get_string('activeuntil', 'mod_customgroups'), ['optional' => true]);
+        $mform->addHelpButton('timedeactivated', 'activeuntil', 'mod_customgroups');
+        $mform->hideIf('timedeactivated', 'active', 'notchecked');
+        
+        $mform->addElement('select', 'defaultgrouping', get_string('defaultgrouping', 'mod_customgroups'), $this->getgroupingoptions());
+        $mform->addHelpButton('defaultgrouping', 'defaultgrouping', 'mod_customgroups');
+        $mform->setType('defaultgrouping', PARAM_INT);
+        
+        $mform->addElement('header', 'groupconditions', get_string('groupconditions', 'mod_customgroups'));
+        $mform->setExpanded('groupconditions');
+        
+        $mform->addElement('text', 'minmembers', get_string('minmembers', 'mod_customgroups'));
+        $mform->addHelpButton('minmembers', 'minmembers', 'mod_customgroups');
+        $mform->setType('minmembers', PARAM_INT);
+        $mform->setDefault('minmembers', 0);
+        $mform->addRule('minmembers', null, 'numeric', null, 'client');
+
+        $mform->addElement('text', 'maxmembers', get_string('maxmembers', 'mod_customgroups'));
+        $mform->addHelpButton('maxmembers', 'maxmembers', 'mod_customgroups');
+        $mform->setType('maxmembers', PARAM_INT);
+        $mform->setDefault('maxmembers', 0);
+        $mform->addRule('maxmembers', null, 'numeric', null, 'client');
+
+        $mform->addElement('text', 'minmemberspercountry', get_string('minmemberspercountry', 'mod_customgroups'));
+        $mform->addHelpButton('minmemberspercountry', 'minmemberspercountry', 'mod_customgroups');
+        $mform->setType('minmemberspercountry', PARAM_INT);
+        $mform->setDefault('minmemberspercountry', 0);
+        $mform->addRule('minmemberspercountry', null, 'numeric', null, 'client');
+
+        $mform->addElement('text', 'maxmemberspercountry', get_string('maxmemberspercountry', 'mod_customgroups'));
+        $mform->addHelpButton('maxmemberspercountry', 'maxmemberspercountry', 'mod_customgroups');
+        $mform->setType('maxmemberspercountry', PARAM_INT);
+        $mform->setDefault('maxmemberspercountry', 0);
+        $mform->addRule('maxmemberspercountry', null, 'numeric', null, 'client');
 
         // Add standard elements.
         $this->standard_coursemodule_elements();

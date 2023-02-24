@@ -50,12 +50,26 @@ function customgroups_supports($feature) {
  * @param mod_customgroups_mod_form $mform The form.
  * @return int The id of the newly inserted record.
  */
-function customgroups_add_instance($moduleinstance, $mform = null) {
+function customgroups_add_instance($moduleinstance) {
     global $DB;
 
-    $moduleinstance->timecreated = time();
+    $instance = new stdClass();
+    $instance->course = $moduleinstance->course;
+    $instance->name = $moduleinstance->name;
+    $instance->active = isset($moduleinstance->active) ? ($moduleinstance->active ? 1 : 0) : 0;
+    $instance->applied = 0;
+    $instance->timecreated = time();
+    $instance->timemodified = time();
+    $instance->timedeactivated = isset($moduleinstance->timedeactivated) ? $moduleinstance->timedeactivated : null;
+    $instance->intro = $moduleinstance->intro;
+    $instance->introformat = $moduleinstance->introformat;
+    $instance->defaultgrouping = $moduleinstance->defaultgrouping;
+    $instance->minmembers = $moduleinstance->minmembers;
+    $instance->maxmembers = $moduleinstance->maxmembers;
+    $instance->minmemberspercountry = $moduleinstance->minmemberspercountry;
+    $instance->maxmemberspercountry = $moduleinstance->maxmemberspercountry;
 
-    $id = $DB->insert_record('customgroups', $moduleinstance);
+    $id = $DB->insert_record('customgroups', $instance);
 
     return $id;
 }

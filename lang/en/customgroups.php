@@ -25,9 +25,31 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Students\' Custom Groups';
-$string['modulename'] = 'Students\' Custom Groups';
+$string['pluginname'] = 'Custom Groups by Students';
+$string['modulename'] = 'Students\' Custom Groups Module';
+$string['modulenameplural'] = 'Students\' Custom Groups Modules';
 $string['customgroups:applygroups'] = 'Apply Groups to Course';
 $string['customgroups:configureinstance'] = 'Configure Module Instance';
 $string['customgroups:creategroup'] = 'Create a New Group';
 $string['customgroups:joingroup'] = 'Join a Group';
+
+$string['timelinesettings'] = 'Timeline Settings';
+$string['openforcreatingorjoining'] = 'Open for creating or joining groups';
+$string['openforcreatingorjoining_help'] = 'If checked, students can create a new groups or join existing groups.';
+$string['activeuntil'] = 'Active until';
+$string['activeuntil_help'] = 'If enabled, the ability to create or join groups will be deactived after a specfic time.';
+$string['defaultgrouping'] = 'Default Grouping';
+$string['defaultgrouping_help'] = 'After applying students\' created groups to the course, all the groups will be in the selected grouping.';
+$string['nogrouping'] = 'No grouping';
+$string['groupconditions'] = 'Group Conditions';
+$string['minmembers'] = 'Minimum members';
+$string['minmembers_help'] = 'Minimum number of members per group, 0 for unlimited';
+$string['maxmembers'] = 'Maximum members';
+$string['maxmembers_help'] = 'Maximum number of members per group, 0 for unlimited';
+$string['minmemberspercountry'] = 'Minimum members per country';
+$string['minmemberspercountry_help'] = 'Minimum number of members for each country in a group, 0 for unlimited';
+$string['maxmemberspercountry'] = 'Maximum members per country';
+$string['maxmemberspercountry_help'] = 'Maximum number of members for each country in a group, 0 for unlimited';
+
+$string['error_maxmemberslessthanminmembers'] = 'The maximum number of members must be greater than the minimum number.';
+$string['error_maxmemberslessthanminmemberspercountry'] = 'The maximum number of members per country must be greater than the minimum number per country.';
