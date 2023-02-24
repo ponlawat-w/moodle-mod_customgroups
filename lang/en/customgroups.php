@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['pluginname'] = 'Custom Groups by Students';
 $string['modulename'] = 'Students\' Custom Groups Module';
 $string['modulenameplural'] = 'Students\' Custom Groups Modules';
+$string['pluginadministration'] = 'Students\' Custom Groups Module Administration';
 $string['customgroups:applygroups'] = 'Apply Groups to Course';
 $string['customgroups:configureinstance'] = 'Configure Module Instance';
 $string['customgroups:creategroup'] = 'Create a New Group';

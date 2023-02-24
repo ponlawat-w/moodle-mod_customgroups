@@ -47,7 +47,6 @@ function customgroups_supports($feature) {
  * number of the instance.
  *
  * @param object $moduleinstance An object from the form.
- * @param mod_customgroups_mod_form $mform The form.
  * @return int The id of the newly inserted record.
  */
 function customgroups_add_instance($moduleinstance) {
@@ -81,16 +80,27 @@ function customgroups_add_instance($moduleinstance) {
  * this function will update an existing instance with new data.
  *
  * @param object $moduleinstance An object from the form in mod_form.php.
- * @param mod_customgroups_mod_form $mform The form.
  * @return bool True if successful, false otherwise.
  */
-function customgroups_update_instance($moduleinstance, $mform = null) {
+function customgroups_update_instance($moduleinstance) {
     global $DB;
 
-    $moduleinstance->timemodified = time();
-    $moduleinstance->id = $moduleinstance->instance;
+    $instance = new stdClass();
+    $instance->id = $moduleinstance->id;
+    $instance->course = $moduleinstance->course;
+    $instance->name = $moduleinstance->name;
+    $instance->active = isset($moduleinstance->active) ? ($moduleinstance->active ? 1 : 0) : 0;
+    $instance->timemodified = time();
+    $instance->timedeactivated = isset($moduleinstance->timedeactivated) ? $moduleinstance->timedeactivated : null;
+    $instance->intro = $moduleinstance->intro;
+    $instance->introformat = $moduleinstance->introformat;
+    $instance->defaultgrouping = $moduleinstance->defaultgrouping;
+    $instance->minmembers = $moduleinstance->minmembers;
+    $instance->maxmembers = $moduleinstance->maxmembers;
+    $instance->minmemberspercountry = $moduleinstance->minmemberspercountry;
+    $instance->maxmemberspercountry = $moduleinstance->maxmemberspercountry;
 
-    return $DB->update_record('customgroups', $moduleinstance);
+    return $DB->update_record('customgroups', $instance);
 }
 
 /**

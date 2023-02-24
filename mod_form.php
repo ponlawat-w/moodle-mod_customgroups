@@ -80,6 +80,10 @@ class mod_customgroups_mod_form extends moodleform_mod {
             $mform->setType('name', PARAM_CLEANHTML);
         }
 
+        $mform->addElement('hidden', 'id');
+        $mform->setDefault('id', $this->_instance ? $this->_instance : 0);
+        $mform->setType('id', PARAM_INT);
+
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
 
