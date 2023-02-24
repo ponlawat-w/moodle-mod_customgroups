@@ -48,13 +48,13 @@
     <TABLE NAME="customgroups_joins" COMMENT="Stores information of students' joined groups">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="group" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="user" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timejoined" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="fk_group" TYPE="foreign" FIELDS="group" REFTABLE="customgroups_groups" REFFIELDS="id"/>
+        <KEY NAME="fk_groupid" TYPE="foreign" FIELDS="groupid" REFTABLE="customgroups_groups" REFFIELDS="id"/>
         <KEY NAME="fk_user" TYPE="foreign" FIELDS="user" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>

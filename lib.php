@@ -117,11 +117,71 @@ function customgroups_delete_instance($id) {
         return false;
     }
 
-    $DB->delete_records('customgroups', array('id' => $id));
+    $groups = $DB->get_records('customgroups_groups', ['module' => $id]);
+    foreach ($groups as $group) {
+        if (!customgroups_deletegroup($group->id)) {
+            return false;
+        }
+    }
+    if (!$DB->delete_records('customgroups', array('id' => $id))) {
+        return false;
+    }
 
     return true;
 }
 
 function customgroups_isactive($instance) {
     return $instance->active && (!$instance->timedeactivated || time() < $instance->timedeactivated);
+}
+
+/**
+ * Create a new group from form data
+ * THIS FUNCTION DOES NOT CHECK WHETHER MODULE IS ACTIVE OR NOT
+ *
+ * @param int $instance
+ * @param int $courseid
+ * @param object $data
+ * @return int
+ */
+function customgroups_creategroupfromform($instance, $courseid, $data) {
+    global $DB, $USER;
+
+    $group = new stdClass();
+    $group->module = $instance;
+    $group->course = $courseid;
+    $group->name = $data->name;
+    $group->description = $data->description['text'];
+    $group->descriptionformat = $data->description['format'];
+    $group->user = $USER->id;
+    $group->timecreated = time();
+
+    $id = $DB->insert_record('customgroups_groups', $group);
+    customgroups_joingroup($id);
+    return $id;
+}
+
+/**
+ * Join user to the group
+ * THIS METHOD DOES NOT CHECK MODULE CONDITIONS
+ *
+ * @param int $groupid
+ * @return int
+ */
+function customgroups_joingroup($groupid) {
+    global $DB, $USER;
+
+    $record = new stdClass();
+    $record->groupid = $groupid;
+    $record->user = $USER->id;
+    $record->timejoined = time();
+
+    return $DB->insert_record('customgroups_joins', $record);
+}
+
+function customgroups_deletegroup($groupid) {
+    global $DB;
+    if (!$DB->delete_records('customgroups_joins', ['groupid' => $groupid])) {
+        return false;
+    }
+    return $DB->delete_records('customgroups_groups', ['id' => $groupid]);
 }

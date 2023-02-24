@@ -29,14 +29,14 @@ require_once(__DIR__.'/lib.php');
 $id = optional_param('id', 0, PARAM_INT);
 
 // Activity instance id.
-$s = optional_param('s', 0, PARAM_INT);
+$instance = optional_param('instance', 0, PARAM_INT);
 
 if ($id) {
     $cm = get_coursemodule_from_id('customgroups', $id, 0, false, MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $moduleinstance = $DB->get_record('customgroups', array('id' => $cm->instance), '*', MUST_EXIST);
 } else {
-    $moduleinstance = $DB->get_record('customgroups', array('id' => $s), '*', MUST_EXIST);
+    $moduleinstance = $DB->get_record('customgroups', array('id' => $instance), '*', MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $course->id, false, MUST_EXIST);
 }
@@ -48,7 +48,7 @@ $modulecontext = context_module::instance($cm->id);
 $data = [];
 $data['active'] = customgroups_isactive($moduleinstance);
 $data['cancreategroup'] = has_capability('mod/customgroups:creategroup', $modulecontext);
-$data['creategroupurl'] = new moodle_url('/mod/customgroups/create.php', ['id' => $moduleinstance->id]);
+$data['creategroupurl'] = new moodle_url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
 
 $PAGE->set_url('/mod/customgroups/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($moduleinstance->name));

@@ -57,3 +57,5 @@ $string['error_maxmemberslessthanminmemberspercountry'] = 'The maximum number of
 
 $string['creategroup'] = 'Create a new group';
 $string['inactive'] = 'This module is no longer active.';
+
+$string['groupname'] = 'Group Name';
