@@ -66,7 +66,7 @@ foreach ($groups as $group) {
         'description' => $group->description,
         'joinscount' => count($joins),
         'joined' => $group->id == $joinedgroupid,
-        'joinable' => $active && (!$joinedgroupid ? true : false),
+        'joinable' => customgroups_canjoingroup($group->id, $moduleinstance),
         'leaveable' => $active && ($joinedgroupid == $group->id && $group->user != $USER->id),
         'editable' => $active && ($group->user == $USER->id),
         'editurl' => new moodle_url('/mod/customgroups/editgroup.php', ['id' => $group->id]),
@@ -79,6 +79,7 @@ foreach ($groups as $group) {
 
 $data = [];
 $data['active'] = $active;
+$data['maxmembers'] = $moduleinstance->maxmembers;
 $data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
 $data['creategroupurl'] = new moodle_url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
 $data['groups'] = $groupsdata;

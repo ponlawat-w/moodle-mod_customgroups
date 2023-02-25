@@ -42,11 +42,11 @@ $moduleinstance = $DB->get_record('customgroups', array('id' => $instance), '*',
 $course = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $course->id, false, MUST_EXIST);
 
+require_login($course, true, $cm);
+
 if (!customgroups_isactive($moduleinstance)) {
     throw new moodle_exception('Module is not active');
 }
-
-require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 require_capability('mod/customgroups:creategroup', $modulecontext);

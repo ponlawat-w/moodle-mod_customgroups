@@ -11,6 +11,7 @@
             </div>
         {{/editable}}
         <h4 class="text-primary">{{name}}</h4>
+        {{#joined}}<div class="small text-success"><i class="fa fa-user"></i> {{#str}} joined, mod_customgroups {{/str}}</div>{{/joined}}
         {{#description}}<div class="px-2 pt-3">{{{description}}}</div>{{/description}}
         {{#leaveable}}
             <a href="{{{leaveurl}}}" class="btn btn-secondary">{{#str}} leave, mod_customgroups {{/str}}</a>
@@ -20,7 +21,11 @@
         {{/joinable}}
         <hr>
         <div class="ml-2">
-            <strong><i class="fa fa-users"></i> {{#str}} members, mod_customgroups {{/str}} ({{joinscount}})</strong>
+            <strong>
+                <i class="fa fa-users"></i>
+                {{#str}} members, mod_customgroups {{/str}}
+                ({{joinscount}}{{#maxmembers}}/{{maxmembers}}{{/maxmembers}})
+            </strong>
             <ul class="small">
                 {{#users}}<li>
                     <a href="{{{url}}}">{{name}}</a>

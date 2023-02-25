@@ -157,6 +157,9 @@ function customgroups_cancreategroup($modcontext, $instanceid, $userid = 0) {
     if ($DB->count_records('customgroups_groups', ['module' => $instanceid, 'user' => $user->id])) {
         return false;
     }
+    if (customgroups_getjoinedgroupid($instanceid, $userid)) {
+        return false;
+    }
     return true;
 }
 
@@ -184,6 +187,36 @@ function customgroups_creategroupfromform($instance, $courseid, $data) {
     $id = $DB->insert_record('customgroups_groups', $group);
     customgroups_joingroup($id);
     return $id;
+}
+
+/**
+ * Check if user can join group
+ *
+ * @param int $groupid
+ * @param stdClass $instance
+ * @param stdClass $user
+ * @return bool
+ */
+function customgroups_canjoingroup($groupid, $instance, $user = null) {
+    global $DB, $USER;
+    $user = $user ? $user : $USER;
+
+    if (!customgroups_isactive($instance)) {
+        return false;
+    }
+    if (customgroups_getjoinedgroupid($instance->id, $user->id)) {
+        return false;
+    }
+    if ($instance->maxmembers && $DB->count_records('customgroups_joins', ['groupid' => $groupid]) >= $instance->maxmembers) {
+        return false;
+    }
+    if ($instance->maxmemberspercountry && $DB->get_record_sql(
+            'SELECT COUNT(*) countrymemberscount FROM {customgroups_joins} j JOIN {user} u ON j.user = u.id WHERE j.groupid = ? AND u.country = ?',
+            [$groupid, $user->country]
+        )->countrymemberscount >= $instance->maxmemberspercountry) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -220,21 +253,38 @@ function customgroups_getjoinedgroupid($instanceid, $userid = 0) {
 }
 
 /**
- * Join user to the group
+ * Join user to a group
  * THIS METHOD DOES NOT CHECK MODULE CONDITIONS
  *
  * @param int $groupid
  * @return int
  */
-function customgroups_joingroup($groupid) {
+function customgroups_joingroup($groupid, $userid = 0) {
     global $DB, $USER;
+
+    $userid = $userid ? $userid : $USER->id;
 
     $record = new stdClass();
     $record->groupid = $groupid;
-    $record->user = $USER->id;
+    $record->user = $userid;
     $record->timejoined = time();
 
     return $DB->insert_record('customgroups_joins', $record);
+}
+
+/**
+ * Leave user from a group
+ *
+ * @param int $groupid
+ * @param int $userid
+ * @return bool
+ */
+function customgroups_leavegroup($groupid, $userid = 0) {
+    global $DB, $USER;
+
+    $userid = $userid ? $userid : $USER->id;
+
+    return $DB->delete_records('customgroups_joins', ['groupid' => $groupid, 'user' => $userid]);
 }
 
 /**
