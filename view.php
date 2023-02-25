@@ -47,7 +47,7 @@ $modulecontext = context_module::instance($cm->id);
 
 $data = [];
 $data['active'] = customgroups_isactive($moduleinstance);
-$data['cancreategroup'] = has_capability('mod/customgroups:creategroup', $modulecontext);
+$data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
 $data['creategroupurl'] = new moodle_url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
 
 $PAGE->set_url('/mod/customgroups/view.php', array('id' => $cm->id));

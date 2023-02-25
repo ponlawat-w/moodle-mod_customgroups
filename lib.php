@@ -130,8 +130,34 @@ function customgroups_delete_instance($id) {
     return true;
 }
 
+/**
+ * Return true if module instance is active
+ *
+ * @param stdClass $instance
+ * @return bool
+ */
 function customgroups_isactive($instance) {
     return $instance->active && (!$instance->timedeactivated || time() < $instance->timedeactivated);
+}
+
+/**
+ * Returns true if user can create a new group in a module instance
+ *
+ * @param context_module $modcontext
+ * @param int $instanceid
+ * @param int $userid
+ * @return bool
+ */
+function customgroups_cancreategroup($modcontext, $instanceid, $userid = 0) {
+    global $DB, $USER;
+    $user = $userid ? $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST) : $USER;
+    if (!has_capability('mod/customgroups:creategroup', $modcontext, $user)) {
+        return false;
+    }
+    if ($DB->count_records('customgroups_groups', ['module' => $instanceid, 'user' => $user->id])) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -178,6 +204,11 @@ function customgroups_joingroup($groupid) {
     return $DB->insert_record('customgroups_joins', $record);
 }
 
+/**
+ * Delete a custom group
+ *
+ * @param int $groupid
+ */
 function customgroups_deletegroup($groupid) {
     global $DB;
     if (!$DB->delete_records('customgroups_joins', ['groupid' => $groupid])) {

@@ -36,8 +36,8 @@ require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 require_capability('mod/customgroups:creategroup', $modulecontext);
-if (!customgroups_isactive($moduleinstance)) {
-    throw new moodle_exception('Module is not active');
+if (!customgroups_cancreategroup($modulecontext, $moduleinstance->id)) {
+    throw new moodle_exception('User does not have permission to create group or there is already a group created by this user in the module.');
 }
 
 require_once(__DIR__ . '/classes/form/editgroup_form.php');
