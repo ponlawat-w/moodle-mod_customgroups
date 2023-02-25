@@ -187,6 +187,39 @@ function customgroups_creategroupfromform($instance, $courseid, $data) {
 }
 
 /**
+ * True if user has joined any group in the given module instance ID
+ *
+ * @param int $instanceid
+ * @param int $userid
+ * @return bool
+ */
+function customgroups_isjoined($instanceid, $userid = 0) {
+    global $DB, $USER;
+    $userid = $userid ? $userid : $USER->id;
+    return $DB->get_record_sql(
+        'SELECT COUNT(*) joinscount FROM {customgroups_joins} j JOIN {customgroups_groups} g ON j.groupid = g.id WHERE g.module = ? AND j.user = ?',
+        [$instanceid, $userid]
+    )->joinscount > 0;
+}
+
+/**
+ * Get duser joined group ID
+ *
+ * @param int $instanceid
+ * @param int $userid
+ * @return int|null
+ */
+function customgroups_getjoinedgroupid($instanceid, $userid = 0) {
+    global $DB, $USER;
+    $userid = $userid ? $userid : $USER->id;
+    $record = $DB->get_record_sql(
+        'SELECT j.groupid groupid FROM {customgroups_joins} j JOIN {customgroups_groups} g ON j.groupid = g.id WHERE g.module = ? AND j.user = ?',
+        [$instanceid, $userid]
+    );
+    return $record ? $record->groupid : null;
+}
+
+/**
  * Join user to the group
  * THIS METHOD DOES NOT CHECK MODULE CONDITIONS
  *

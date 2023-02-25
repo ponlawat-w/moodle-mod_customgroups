@@ -1,20 +1,20 @@
 {{!
     @template mod_customgroups/view
 }}
-<div class="mt-5">
-    {{#active}}
-        {{#cancreategroup}}
-            <div class="text-right">
-                <a href="{{creategroupurl}}" class="btn btn-secondary">
-                    <i class="fa fa-plus"></i>
-                    {{#str}} creategroup, mod_customgroups {{/str}}
-                </a>
-            </div>
-        {{/cancreategroup}}
-    {{/active}}
-    {{^active}}
-        <div class="alert alert-secondary">
-            {{#str}} inactive, mod_customgroups {{/str}}
+{{#active}}
+    {{#cancreategroup}}
+        <div class="float-right">
+            <a href="{{creategroupurl}}" class="btn btn-secondary">
+                <i class="fa fa-plus"></i>
+                {{#str}} creategroup, mod_customgroups {{/str}}
+            </a>
         </div>
-    {{/active}}
-</div>
+    {{/cancreategroup}}
+{{/active}}
+{{^active}}
+    <div class="alert alert-secondary">
+        {{#str}} inactive, mod_customgroups {{/str}}
+    </div>
+{{/active}}
+<h1>{{#str}} groups {{/str}}</h1>
+{{>mod_customgroups/groups}}

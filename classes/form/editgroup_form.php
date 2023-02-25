@@ -31,18 +31,24 @@ class editgroup_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('hidden', 'instance');
+        $mform->addElement('hidden', 'instance')
+            ->setValue(isset($this->_customdata['instance']) ? $this->_customdata['instance'] : null);
         $mform->setType('instance', PARAM_INT);
-        $mform->setDefault('instance', $this->_customdata['instance']);
 
-        $mform->addElement('hidden', 'id');
+        $mform->addElement('hidden', 'id')
+            ->setValue(isset($this->_customdata['id']) ? $this->_customdata['id'] : null);
         $mform->setType('id', PARAM_INT);
         
-        $mform->addElement('text', 'name', get_string('groupname', 'mod_customgroups'), ['size' => 64]);
+        $mform->addElement('text', 'name', get_string('groupname', 'mod_customgroups'), ['size' => 64])
+            ->setValue(isset($this->_customdata['name']) ? $this->_customdata['name'] : null);
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
 
-        $mform->addElement('editor', 'description', get_string('description'));
+        $mform->addElement('editor', 'description', get_string('description'))
+            ->setValue(isset($this->_customdata['description']) && isset($this->_customdata['descriptionformat']) ? [
+                'text' => $this->_customdata['description'],
+                'format' => $this->_customdata['descriptionformat']
+            ] : null);
         $mform->setType('description', PARAM_CLEANHTML);
 
         $this->add_action_buttons(true);

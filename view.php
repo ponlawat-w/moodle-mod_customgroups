@@ -45,10 +45,43 @@ require_login($course, true, $cm);
 
 $modulecontext = context_module::instance($cm->id);
 
+$active = customgroups_isactive($moduleinstance);
+
+$groups = $DB->get_records('customgroups_groups', ['module' => $moduleinstance->id], 'name ASC');
+$joinedgroupid = customgroups_getjoinedgroupid($moduleinstance->id);
+$groupsdata = [];
+foreach ($groups as $group) {
+    $joins = $DB->get_records('customgroups_joins', ['groupid' => $group->id]);
+    $users = [];
+    foreach ($joins as $join) {
+        $users[] = [
+            'url' => new moodle_url('/user/view.php', ['id' => $join->user, 'course' => $course->id]),
+            'name' => fullname($DB->get_record('user', ['id' => $join->user], '*', MUST_EXIST)),
+            'owner' => $join->user == $group->user
+        ];
+    }
+    $groupsdata[] = [
+        'id' => $group->id,
+        'name' => $group->name,
+        'description' => $group->description,
+        'joinscount' => count($joins),
+        'joined' => $group->id == $joinedgroupid,
+        'joinable' => $active && (!$joinedgroupid ? true : false),
+        'leaveable' => $active && ($joinedgroupid == $group->id && $group->user != $USER->id),
+        'editable' => $active && ($group->user == $USER->id),
+        'editurl' => new moodle_url('/mod/customgroups/editgroup.php', ['id' => $group->id]),
+        'removeurl' => new moodle_url('/mod/customgroups/editgroup.php', ['action' => 'remove', 'id' => $group->id]),
+        'leaveurl' => new moodle_url('/mod/customgroups/groupaction.php', ['action' => 'leave', 'id' => $group->id]),
+        'joinurl' => new moodle_url('/mod/customgroups/groupaction.php', ['action' => 'join', 'id' => $group->id]),
+        'users' => $users
+    ];
+}
+
 $data = [];
-$data['active'] = customgroups_isactive($moduleinstance);
+$data['active'] = $active;
 $data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
 $data['creategroupurl'] = new moodle_url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
+$data['groups'] = $groupsdata;
 
 $PAGE->set_url('/mod/customgroups/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($moduleinstance->name));

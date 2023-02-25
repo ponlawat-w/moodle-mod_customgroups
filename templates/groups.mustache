@@ -1,0 +1,32 @@
+{{!
+    @template mod_customgroup/groups
+}}
+{{#groups}}
+    <a id="g-{{id}}"></a>
+    <div class="card my-2"><div class="card-body">
+        {{#editable}}
+            <div class="float-right">
+                <a href="{{{editurl}}}"><i class="fa fa-edit"></i> {{#str}} edit {{/str}}</a>
+                <a href="{{{removeurl}}}" class="text-danger"><i class="fa fa-trash"></i> {{#str}} remove {{/str}}</a>
+            </div>
+        {{/editable}}
+        <h4 class="text-primary">{{name}}</h4>
+        {{#description}}<div class="px-2 pt-3">{{{description}}}</div>{{/description}}
+        {{#leaveable}}
+            <a href="{{{leaveurl}}}" class="btn btn-secondary">{{#str}} leave, mod_customgroups {{/str}}</a>
+        {{/leaveable}}
+        {{#joinable}}
+            <a href="{{{joinurl}}}" class="btn btn-secondary">{{#str}} join, mod_customgroups {{/str}}</a>
+        {{/joinable}}
+        <hr>
+        <div class="ml-2">
+            <strong><i class="fa fa-users"></i> {{#str}} members, mod_customgroups {{/str}} ({{joinscount}})</strong>
+            <ul class="small">
+                {{#users}}<li>
+                    <a href="{{{url}}}">{{name}}</a>
+                    {{#owner}} ({{#str}} owner, mod_customgroups {{/str}}){{/owner}}
+                </li>{{/users}}
+            </ul>
+        </div>
+    </div></div>
+{{/groups}}

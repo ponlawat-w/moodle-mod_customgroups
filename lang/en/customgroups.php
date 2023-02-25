@@ -56,6 +56,16 @@ $string['error_maxmemberslessthanminmembers'] = 'The maximum number of members m
 $string['error_maxmemberslessthanminmemberspercountry'] = 'The maximum number of members per country must be greater than the minimum number per country.';
 
 $string['creategroup'] = 'Create a new group';
+$string['editgroup'] = 'Edit group';
+$string['deletegroup'] = 'Delete group';
 $string['inactive'] = 'This module is no longer active.';
+$string['join'] = 'Join this group';
+$string['leave'] = 'Leave this group';
+$string['joined'] = 'You are member of this group';
+$string['members'] = 'Joined Members';
+$string['owner'] = 'Owner';
 
 $string['groupname'] = 'Group Name';
+
+$string['confirmation'] = 'Confirmation';
+$string['confirm_removegroup'] = 'Are you sure you want to remove group {$a}?';
