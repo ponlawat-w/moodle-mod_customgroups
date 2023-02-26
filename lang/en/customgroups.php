@@ -34,6 +34,13 @@ $string['customgroups:addinstance'] = 'Add a Module Instance';
 $string['customgroups:creategroup'] = 'Create a New Group';
 $string['customgroups:joingroup'] = 'Join a Group';
 
+$string['admin_defaultminmembers'] = 'Default minimum members per group';
+$string['admin_defaultminmembers_description'] = 'This will be default settings for new module instances and can be overwritten in each module settings. 0 to be unlimited.';
+$string['admin_defaultmaxmembers'] = 'Default maximum members per group';
+$string['admin_defaultmaxmembers_description'] = 'This will be default settings for new module instances and can be overwritten in each module settings. 0 to be unlimited.';
+$string['admin_defaultmaxmemberspercountry'] = 'Defaul maximum members per country per group';
+$string['admin_defaultmaxmemberspercountry_description'] = 'This will be default settings for new module instances and can be overwritten in each module settings. 0 to be unlimited.';
+
 $string['timelinesettings'] = 'Timeline Settings';
 $string['openforcreatingorjoining'] = 'Open for creating or joining groups';
 $string['openforcreatingorjoining_help'] = 'If checked, students can create a new groups or join existing groups.';
@@ -44,11 +51,11 @@ $string['defaultgrouping_help'] = 'After applying students\' created groups to t
 $string['nogrouping'] = 'No grouping';
 $string['groupconditions'] = 'Group Conditions';
 $string['minmembers'] = 'Minimum members';
-$string['minmembers_help'] = 'Minimum number of members per group, 0 for unlimited';
+$string['minmembers_help'] = 'Minimum number of members per group, 0 for unlimited. Groups that are not satisfied with this condition will not be created when module is applied to course.';
 $string['maxmembers'] = 'Maximum members';
-$string['maxmembers_help'] = 'Maximum number of members per group, 0 for unlimited';
+$string['maxmembers_help'] = 'Maximum number of members per group, 0 for unlimited. Students will not be able to join groups that reached the maximum capacity.';
 $string['maxmemberspercountry'] = 'Maximum members per country';
-$string['maxmemberspercountry_help'] = 'Maximum number of members for each country in a group, 0 for unlimited';
+$string['maxmemberspercountry_help'] = 'Maximum number of members for each country in a group, 0 for unlimited. Students will not be able to join groups having the number of members from the same country reaching the maximum capacoty.';
 
 $string['error_maxmemberslessthanminmembers'] = 'The maximum number of members must be greater than the minimum number.';
 $string['error_maxmemberslessthanmaxmemberspercountry'] = 'The maximum number of members must be greater than per country.';

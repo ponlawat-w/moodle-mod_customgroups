@@ -90,6 +90,7 @@ class mod_customgroups_mod_form extends moodleform_mod {
             $moduleinstance = $DB->get_record('customgroups', ['id' => $this->_instance]);
             $applied = $moduleinstance->applied ? true : false;
         }
+        $disabledattr = $applied ? ['disabled' => true] : [];
 
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
@@ -97,38 +98,38 @@ class mod_customgroups_mod_form extends moodleform_mod {
         // Adding the standard "intro" and "introformat" fields.
         $this->standard_intro_elements();
 
-        $mform->addElement('checkbox', 'active', get_string('active'), get_string('openforcreatingorjoining', 'mod_customgroups'), ['disabled' => $applied]);
+        $mform->addElement('checkbox', 'active', get_string('active'), get_string('openforcreatingorjoining', 'mod_customgroups'), $disabledattr);
         $mform->setDefault('active', true);
         $mform->addHelpButton('active', 'openforcreatingorjoining', 'mod_customgroups');
         $mform->setType('active', PARAM_BOOL);
         
-        $mform->addElement('date_time_selector', 'timedeactivated', get_string('activeuntil', 'mod_customgroups'), ['optional' => true, 'disabled' => $applied]);
+        $mform->addElement('date_time_selector', 'timedeactivated', get_string('activeuntil', 'mod_customgroups'), array_merge(['optional' => true], $disabledattr));
         $mform->addHelpButton('timedeactivated', 'activeuntil', 'mod_customgroups');
         $mform->hideIf('timedeactivated', 'active', 'notchecked');
         
-        $mform->addElement('select', 'defaultgrouping', get_string('defaultgrouping', 'mod_customgroups'), $this->getgroupingoptions(), ['disabled' => $applied]);
+        $mform->addElement('select', 'defaultgrouping', get_string('defaultgrouping', 'mod_customgroups'), $this->getgroupingoptions(), $disabledattr);
         $mform->addHelpButton('defaultgrouping', 'defaultgrouping', 'mod_customgroups');
         $mform->setType('defaultgrouping', PARAM_INT);
         
         $mform->addElement('header', 'groupconditions', get_string('groupconditions', 'mod_customgroups'));
         $mform->setExpanded('groupconditions');
         
-        $mform->addElement('text', 'minmembers', get_string('minmembers', 'mod_customgroups'), ['disabled' => $applied]);
+        $mform->addElement('text', 'minmembers', get_string('minmembers', 'mod_customgroups'), $disabledattr);
         $mform->addHelpButton('minmembers', 'minmembers', 'mod_customgroups');
         $mform->setType('minmembers', PARAM_INT);
-        $mform->setDefault('minmembers', 0);
+        $mform->setDefault('minmembers', get_config('mod_customgroups', 'defaultminmembers'));
         $mform->addRule('minmembers', null, 'numeric', null, 'client');
 
-        $mform->addElement('text', 'maxmembers', get_string('maxmembers', 'mod_customgroups'), ['disabled' => $applied]);
+        $mform->addElement('text', 'maxmembers', get_string('maxmembers', 'mod_customgroups'), $disabledattr);
         $mform->addHelpButton('maxmembers', 'maxmembers', 'mod_customgroups');
         $mform->setType('maxmembers', PARAM_INT);
-        $mform->setDefault('maxmembers', 0);
+        $mform->setDefault('maxmembers', get_config('mod_customgroups', 'defaultmaxmembers'));
         $mform->addRule('maxmembers', null, 'numeric', null, 'client');
 
-        $mform->addElement('text', 'maxmemberspercountry', get_string('maxmemberspercountry', 'mod_customgroups'), ['disabled' => $applied]);
+        $mform->addElement('text', 'maxmemberspercountry', get_string('maxmemberspercountry', 'mod_customgroups'), $disabledattr);
         $mform->addHelpButton('maxmemberspercountry', 'maxmemberspercountry', 'mod_customgroups');
         $mform->setType('maxmemberspercountry', PARAM_INT);
-        $mform->setDefault('maxmemberspercountry', 0);
+        $mform->setDefault('maxmemberspercountry', get_config('mod_customgroups', 'defaultmaxmemberspercountry'));
         $mform->addRule('maxmemberspercountry', null, 'numeric', null, 'client');
 
         // Add standard elements.
