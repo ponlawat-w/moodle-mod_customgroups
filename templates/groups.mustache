@@ -1,0 +1,54 @@
+{{!
+    @template mod_customgroup/groups
+}}
+{{#groups}}
+    <a id="g-{{id}}"></a>
+    <div class="card my-2"><div class="card-body">
+        {{#editable}}
+            <div class="float-right">
+                <a href="{{{editurl}}}" class="btn btn-secondary"><i class="fa fa-edit"></i> {{#str}} edit {{/str}}</a>
+                <a href="{{{removeurl}}}" class="btn btn-danger"><i class="fa fa-trash"></i> {{#str}} remove {{/str}}</a>
+            </div>
+        {{/editable}}
+        <h4 class="text-primary">{{name}}</h4>
+        {{#warningtexts}}
+            <div class="small text-danger"><i class="fa fa-exclamation-circle"></i> {{text}}</div>
+        {{/warningtexts}}
+        {{#joined}}<div class="small text-success"><i class="fa fa-user"></i> {{#str}} joined, mod_customgroups {{/str}}</div>{{/joined}}
+        {{#description}}<div class="px-2 pt-3">{{{description}}}</div>{{/description}}
+        {{#leaveable}}
+            <a href="{{{leaveurl}}}" class="btn btn-secondary">{{#str}} leave, mod_customgroups {{/str}}</a>
+        {{/leaveable}}
+        {{#joinable}}
+            <a href="{{{joinurl}}}" class="btn btn-secondary">{{#str}} join, mod_customgroups {{/str}}</a>
+        {{/joinable}}
+        <hr>
+        <div class="row mx-2">
+            <div class="col-12{{#countries}} col-lg-6{{/countries}}">
+                <strong>
+                    <i class="fa fa-users"></i>
+                    {{#str}} members, mod_customgroups {{/str}}
+                    ({{joinscount}}{{#maxmembers}}/{{maxmembers}}{{/maxmembers}})
+                </strong>
+                <ul class="small">
+                    {{#users}}<li>
+                        <a href="{{{url}}}">{{name}}</a>
+                        {{#owner}} ({{#str}} owner, mod_customgroups {{/str}}){{/owner}}
+                    </li>{{/users}}
+                </ul>
+            </div>
+            {{#maxmemberspercountry}}<div class="col-12 col-lg-6">
+                <strong>
+                    <i class="fa fa-globe"></i>
+                    {{#str}} membersbycountry, mod_customgroups {{/str}}
+                </strong>
+                <ul class="small">
+                    {{#countries}}<li class="{{{class}}}">
+                        {{name}}
+                        ({{count}}/{{maxmemberspercountry}})
+                    </li>{{/countries}}
+                </ul>
+            </div>{{/maxmemberspercountry}}
+        </div>
+    </div></div>
+{{/groups}}

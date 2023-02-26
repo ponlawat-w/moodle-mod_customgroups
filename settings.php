@@ -28,6 +28,23 @@ defined('MOODLE_INTERNAL') || die();
 if ($hassiteconfig) {
     // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
     if ($ADMIN->fulltree) {
-        // TODO: Define the plugin settings page - {@link https://docs.moodle.org/dev/Admin_settings}.
+        $settings->add(new admin_setting_configtext(
+            'mod_customgroups/defaultminmembers',
+            get_string('admin_defaultminmembers', 'mod_customgroups'),
+            get_string('admin_defaultminmembers_description', 'mod_customgroups'),
+            0, PARAM_INT
+        ));
+        $settings->add(new admin_setting_configtext(
+            'mod_customgroups/defaultmaxmembers',
+            get_string('admin_defaultmaxmembers', 'mod_customgroups'),
+            get_string('admin_defaultmaxmembers_description', 'mod_customgroups'),
+            0, PARAM_INT
+        ));
+        $settings->add(new admin_setting_configtext(
+            'mod_customgroups/defaultmaxmemberspercountry',
+            get_string('admin_defaultmaxmemberspercountry', 'mod_customgroups'),
+            get_string('admin_defaultmaxmemberspercountry_description', 'mod_customgroups'),
+            0, PARAM_INT
+        ));
     }
 }

@@ -9,17 +9,16 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="ID of the course this activity is part of"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The name of the activity module instance"/>
-        <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" COMMENT="Boolean to be true if module if open for joining"/>
+        <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="Boolean to be true if module is open for joining"/>
         <FIELD NAME="applied" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" COMMENT="Boolean to be true if groups are already applied to the course"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was added to the course"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp of when the instance was last modified"/>
         <FIELD NAME="timedeactivated" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp of when the instance will be or has been deactivated"/>
         <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Activity description."/>
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the intro field"/>
-        <FIELD NAME="grouping" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Grouping ID of applied groups"/>
+        <FIELD NAME="defaultgrouping" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Grouping ID of applied groups"/>
         <FIELD NAME="minmembers" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Minimum number of members required"/>
         <FIELD NAME="maxmembers" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of members required"/>
-        <FIELD NAME="minmemberspercountry" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Minimum number of members per country required"/>
         <FIELD NAME="maxmemberspercountry" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of members per country required"/>
       </FIELDS>
       <KEYS>
@@ -48,13 +47,13 @@
     <TABLE NAME="customgroups_joins" COMMENT="Stores information of students' joined groups">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="group" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="user" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timejoined" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="fk_group" TYPE="foreign" FIELDS="group" REFTABLE="customgroups_groups" REFFIELDS="id"/>
+        <KEY NAME="fk_groupid" TYPE="foreign" FIELDS="groupid" REFTABLE="customgroups_groups" REFFIELDS="id"/>
         <KEY NAME="fk_user" TYPE="foreign" FIELDS="user" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
