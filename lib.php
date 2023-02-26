@@ -316,7 +316,7 @@ function customgroups_canapply($moduleinstance, $groupid) {
     if (!$moduleinstance->minmembers) {
         return $DB->count_records('customgroups_joins', ['groupid' => $groupid]) > 0;
     }
-    return $DB->count_records('customgroups_joins', ['groupid' => $groupid] >= $moduleinstance->minmembers);
+    return $DB->count_records('customgroups_joins', ['groupid' => $groupid]) >= $moduleinstance->minmembers;
 }
 
 /**

@@ -80,6 +80,9 @@ $string['cannotjoin_groupreachedmaxmemberspercountry'] = 'You cannot join this g
 
 $string['groupname'] = 'Group Name';
 
+$string['applyinggroupssummary'] = '{$a->groups} group(s) with total {$a->members} member(s) will be applied to this course.';
+$string['inaplicablegroupssummary'] = '{$a->groups} group(s) with total {$a->members} member(s) cannot be applied to this course due to module conditions.';
+
 $string['confirmation'] = 'Confirmation';
 $string['confirm_removegroup'] = 'Are you sure you want to remove group {$a}?';
 $string['confirm_applygroups'] = 'Are you sure you want to apply groups to course? The activity module will be deactivated after applying.';

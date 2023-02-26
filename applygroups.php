@@ -42,10 +42,43 @@ if ($moduleinstance->applied) {
 
 $redirecturl = new moodle_url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);
 
+$groups = $DB->get_records('customgroups_groups', ['module' => $moduleinstance->id]);
+$totalgroupscount = 0;
+$totalmemberscount = 0;
+$totalinaplicablegroupscount = 0;
+$totalinaplicablememberscount = 0;
+
+foreach ($groups as $group) {
+    $joinscount = $DB->count_records('customgroups_joins', ['groupid' => $group->id]);
+    if (customgroups_canapply($moduleinstance, $group->id)) {
+        $totalgroupscount++;
+        $totalmemberscount += $joinscount;
+    } else {
+        $totalinaplicablegroupscount++;
+        $totalinaplicablememberscount += $joinscount;
+    }
+}
+
+$message = html_writer::tag('p', get_string('confirm_applygroups', 'mod_customgroups'));
+$message .= html_writer::start_tag('ul');
+$message .= html_writer::tag(
+    'li', 
+    get_string('applyinggroupssummary', 'mod_customgroups', ['groups' => $totalgroupscount, 'members' => $totalmemberscount]),
+    ['class' => 'text-primary']
+);
+if ($totalinaplicablegroupscount > 0) {
+    $message .= html_writer::tag(
+        'li',
+        get_string('inaplicablegroupssummary', 'mod_customgroups', ['groups' => $totalinaplicablegroupscount, 'members' => $totalinaplicablememberscount]),
+        ['class' => 'text-danger']
+    );
+}
+$message .= html_writer::end_tag('li');
+
 require_once(__DIR__ . '/classes/form/confirm_form.php');
 $form = new confirm_form(null, [
     'title' => get_string('applygroups', 'mod_customgroups'),
-    'message' => get_string('confirm_applygroups', 'mod_customgroups'),
+    'message' => $message,
     'instance' => $moduleinstance->id
 ]);
 if ($form->is_cancelled()) {
