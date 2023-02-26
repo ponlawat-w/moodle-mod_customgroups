@@ -373,3 +373,25 @@ function customgroups_applymodule($moduleinstance) {
     $moduleinstance->applied = 1;
     $DB->update_record('customgroups', $moduleinstance);
 }
+
+/**
+ * Get members count by country of a group
+ *
+ * @param int $groupid
+ * @return array with key being country and value being count
+ */
+function customgroups_getmemberscountbycountry($groupid) {
+    global $DB;
+    $results = [];
+    $joinedusers = $DB->get_records_sql(
+        'SELECT u.id, u.country FROM {customgroups_joins} j JOIN {user} u ON j.user = u.id WHERE j.groupid = ? ORDER BY u.country ASC',
+        [$groupid]
+    );
+    foreach ($joinedusers as $joineduser) {
+        if (!isset($results[$joineduser->country])) {
+            $results[$joineduser->country] = 0;
+        }
+        $results[$joineduser->country]++;
+    }
+    return $results;
+}

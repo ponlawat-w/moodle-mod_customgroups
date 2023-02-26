@@ -60,11 +60,42 @@ foreach ($groups as $group) {
             'owner' => $join->user == $group->user
         ];
     }
+    $joinscount = count($joins);
+    $countries = null;
+    $countpercountries = [];
+    if ($moduleinstance->maxmemberspercountry) {
+        $countries = [];
+        $countpercountries = customgroups_getmemberscountbycountry($group->id);
+        foreach ($countpercountries as $country => $count) {
+            $countries[] = [
+                'name' => get_string($country, 'countries'),
+                'count' => $count,
+                'class' => $country == $USER->country && $count >= $moduleinstance->maxmemberspercountry ? 'text-danger' : ''
+            ];
+        }
+    }
+    $warningtexts = [];
+    if (!$joinedgroupid) {
+        if ($joinscount >= $moduleinstance->maxmembers) {
+            $warningtexts[] = ['text' => get_string('cannotjoin_groupreachedmaxmembers', 'mod_customgroups', $moduleinstance->maxmembers)];
+        }
+        if (isset($countpercountries[$USER->country]) && $countpercountries[$USER->country] >= $moduleinstance->maxmemberspercountry) {
+            $warningtexts[] = ['text' =>
+                get_string('cannotjoin_groupreachedmaxmemberspercountry', 'mod_customgroups', [
+                    'country' => get_string($USER->country, 'countries'),
+                    'maxmembers' => $moduleinstance->maxmemberspercountry
+                ])
+            ];
+        }
+    }
+    if ($moduleinstance->minmembers && $joinscount < $moduleinstance->minmembers) {
+        $warningtexts[] = ['text' => get_string('minmembersnotsatisfied', 'mod_customgroups', $moduleinstance->minmembers)];
+    }
     $groupsdata[] = [
         'id' => $group->id,
         'name' => $group->name,
         'description' => $group->description,
-        'joinscount' => count($joins),
+        'joinscount' => $joinscount,
         'joined' => $group->id == $joinedgroupid,
         'joinable' => customgroups_canjoingroup($group->id, $moduleinstance),
         'leaveable' => $active && ($joinedgroupid == $group->id && $group->user != $USER->id),
@@ -73,14 +104,18 @@ foreach ($groups as $group) {
         'removeurl' => new moodle_url('/mod/customgroups/editgroup.php', ['action' => 'remove', 'id' => $group->id]),
         'leaveurl' => new moodle_url('/mod/customgroups/groupaction.php', ['action' => 'leave', 'id' => $group->id]),
         'joinurl' => new moodle_url('/mod/customgroups/groupaction.php', ['action' => 'join', 'id' => $group->id]),
-        'users' => $users
+        'users' => $users,
+        'countries' => $countries,
+        'warningtexts' => $warningtexts
     ];
 }
 
 $data = [];
 $data['active'] = $active;
 $data['applied'] = $moduleinstance->applied;
+$data['minmembers'] = $moduleinstance->minmembers;
 $data['maxmembers'] = $moduleinstance->maxmembers;
+$data['maxmemberspercountry'] = $moduleinstance->maxmemberspercountry;
 $data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
 $data['hasapplycap'] = has_capability('mod/customgroups:applygroups', $modulecontext);
 $data['canapplygroups'] = !$moduleinstance->applied && $data['hasapplycap'];

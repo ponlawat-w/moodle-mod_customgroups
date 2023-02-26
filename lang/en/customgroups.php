@@ -68,11 +68,15 @@ $string['applied'] = 'Groups in this activity have been applied to the course.';
 $string['inactive'] = 'This activity is no longer active.';
 $string['join'] = 'Join this group';
 $string['leave'] = 'Leave this group';
-$string['joined'] = 'You are member of this group';
+$string['joined'] = 'You are member of this group.';
 $string['members'] = 'Joined Members';
 $string['owner'] = 'Owner';
+$string['membersbycountry'] = 'Members by Country';
 $string['viewgroups'] = 'View Groups';
 $string['deletemodule'] = 'Delete Module';
+$string['minmembersnotsatisfied'] = 'This group needs to have at least {$a} members to be valid.';
+$string['cannotjoin_groupreachedmaxmembers'] = 'You cannot join this group because it already has members reaching the maximum of {$a}.';
+$string['cannotjoin_groupreachedmaxmemberspercountry'] = 'You cannot join this group because it already has members from your country ({$a->country}) reaching the maximum of {$a->maxmembers}.';
 
 $string['groupname'] = 'Group Name';
 
