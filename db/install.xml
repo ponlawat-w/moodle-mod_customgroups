@@ -19,7 +19,6 @@
         <FIELD NAME="defaultgrouping" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Grouping ID of applied groups"/>
         <FIELD NAME="minmembers" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Minimum number of members required"/>
         <FIELD NAME="maxmembers" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of members required"/>
-        <FIELD NAME="minmemberspercountry" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Minimum number of members per country required"/>
         <FIELD NAME="maxmemberspercountry" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum number of members per country required"/>
       </FIELDS>
       <KEYS>

@@ -22,7 +22,7 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require(__DIR__.'/../../config.php');
+require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
 
 // Course module id.
@@ -79,10 +79,16 @@ foreach ($groups as $group) {
 
 $data = [];
 $data['active'] = $active;
+$data['applied'] = $moduleinstance->applied;
 $data['maxmembers'] = $moduleinstance->maxmembers;
 $data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
+$data['hasapplycap'] = has_capability('mod/customgroups:applygroups', $modulecontext);
+$data['canapplygroups'] = !$moduleinstance->applied && $data['hasapplycap'];
 $data['creategroupurl'] = new moodle_url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
+$data['applygroupsurl'] = new moodle_url('/mod/customgroups/applygroups.php', ['instance' => $moduleinstance->id]);
 $data['groups'] = $groupsdata;
+$data['viewgroupurl'] = $moduleinstance->applied ? new moodle_url('/group/index.php', ['id' => $course->id]) : null;
+$data['deletemoduleurl'] = $moduleinstance->applied ? new moodle_url('/course/mod.php', ['delete' => $cm->id]) : null;
 
 $PAGE->set_url('/mod/customgroups/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($moduleinstance->name));

@@ -47,25 +47,28 @@ $string['minmembers'] = 'Minimum members';
 $string['minmembers_help'] = 'Minimum number of members per group, 0 for unlimited';
 $string['maxmembers'] = 'Maximum members';
 $string['maxmembers_help'] = 'Maximum number of members per group, 0 for unlimited';
-$string['minmemberspercountry'] = 'Minimum members per country';
-$string['minmemberspercountry_help'] = 'Minimum number of members for each country in a group, 0 for unlimited';
 $string['maxmemberspercountry'] = 'Maximum members per country';
 $string['maxmemberspercountry_help'] = 'Maximum number of members for each country in a group, 0 for unlimited';
 
 $string['error_maxmemberslessthanminmembers'] = 'The maximum number of members must be greater than the minimum number.';
-$string['error_maxmemberslessthanminmemberspercountry'] = 'The maximum number of members per country must be greater than the minimum number per country.';
+$string['error_maxmemberslessthanmaxmemberspercountry'] = 'The maximum number of members must be greater than per country.';
 
 $string['creategroup'] = 'Create a new group';
+$string['applygroups'] = 'Apply groups to course';
 $string['editgroup'] = 'Edit group';
 $string['deletegroup'] = 'Delete group';
-$string['inactive'] = 'This module is no longer active.';
+$string['applied'] = 'Groups in this activity have been applied to the course.';
+$string['inactive'] = 'This activity is no longer active.';
 $string['join'] = 'Join this group';
 $string['leave'] = 'Leave this group';
 $string['joined'] = 'You are member of this group';
 $string['members'] = 'Joined Members';
 $string['owner'] = 'Owner';
+$string['viewgroups'] = 'View Groups';
+$string['deletemodule'] = 'Delete Module';
 
 $string['groupname'] = 'Group Name';
 
 $string['confirmation'] = 'Confirmation';
 $string['confirm_removegroup'] = 'Are you sure you want to remove group {$a}?';
+$string['confirm_applygroups'] = 'Are you sure you want to apply groups to course? The activity module will be deactivated after applying.';

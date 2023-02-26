@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(__DIR__ . '/../../group/lib.php');
+
 /**
  * Return if the plugin supports $feature.
  *
@@ -65,7 +67,6 @@ function customgroups_add_instance($moduleinstance) {
     $instance->defaultgrouping = $moduleinstance->defaultgrouping;
     $instance->minmembers = $moduleinstance->minmembers;
     $instance->maxmembers = $moduleinstance->maxmembers;
-    $instance->minmemberspercountry = $moduleinstance->minmemberspercountry;
     $instance->maxmemberspercountry = $moduleinstance->maxmemberspercountry;
 
     $id = $DB->insert_record('customgroups', $instance);
@@ -85,20 +86,23 @@ function customgroups_add_instance($moduleinstance) {
 function customgroups_update_instance($moduleinstance) {
     global $DB;
 
+    $moduleinstancefromdb = $DB->get_record('customgroups', ['id' => $moduleinstance->id], '*', MUST_EXIST);
+
     $instance = new stdClass();
     $instance->id = $moduleinstance->id;
     $instance->course = $moduleinstance->course;
     $instance->name = $moduleinstance->name;
-    $instance->active = isset($moduleinstance->active) ? ($moduleinstance->active ? 1 : 0) : 0;
-    $instance->timemodified = time();
-    $instance->timedeactivated = isset($moduleinstance->timedeactivated) ? $moduleinstance->timedeactivated : null;
     $instance->intro = $moduleinstance->intro;
     $instance->introformat = $moduleinstance->introformat;
-    $instance->defaultgrouping = $moduleinstance->defaultgrouping;
-    $instance->minmembers = $moduleinstance->minmembers;
-    $instance->maxmembers = $moduleinstance->maxmembers;
-    $instance->minmemberspercountry = $moduleinstance->minmemberspercountry;
-    $instance->maxmemberspercountry = $moduleinstance->maxmemberspercountry;
+    $instance->timemodified = time();
+    if (!$moduleinstancefromdb->applied) {
+        $instance->active = isset($moduleinstance->active) ? ($moduleinstance->active ? 1 : 0) : 0;
+        $instance->timedeactivated = isset($moduleinstance->timedeactivated) ? $moduleinstance->timedeactivated : null;
+        $instance->defaultgrouping = $moduleinstance->defaultgrouping;
+        $instance->minmembers = $moduleinstance->minmembers;
+        $instance->maxmembers = $moduleinstance->maxmembers;
+        $instance->maxmemberspercountry = $moduleinstance->maxmemberspercountry;
+    }
 
     return $DB->update_record('customgroups', $instance);
 }
@@ -298,4 +302,74 @@ function customgroups_deletegroup($groupid) {
         return false;
     }
     return $DB->delete_records('customgroups_groups', ['id' => $groupid]);
+}
+
+/**
+ * Test if group can be applied to course
+ *
+ * @param stdClass $moduleinstance
+ * @param int $groupid
+ * @return bool
+ */
+function customgroups_canapply($moduleinstance, $groupid) {
+    global $DB;
+    if (!$moduleinstance->minmembers) {
+        return $DB->count_records('customgroups_joins', ['groupid' => $groupid]) > 0;
+    }
+    return $DB->count_records('customgroups_joins', ['groupid' => $groupid] >= $moduleinstance->minmembers);
+}
+
+/**
+ * Apply group from module instance to course
+ * THIS FUNCTION DOES NOT CHECK IF A GROUP CAN BE APPLIED UNDER MODULE CONDITIONS
+ *
+ * @param stdClass $moduleinstance
+ * @param stdClass $group
+ */
+function customgroups_applygroup($moduleinstance, $group) {
+    global $DB;
+    $groupdata = new stdClass();
+    $groupdata->courseid = $moduleinstance->course;
+    $groupdata->name = $group->name;
+    $newgroupid = groups_create_group($groupdata);
+    if (!$newgroupid) {
+        throw new moodle_exception('Cannot create group: ' . $group->id . ' - ' . $group->name);
+    }
+    if ($moduleinstance->defaultgrouping) {
+        groups_assign_grouping($moduleinstance->defaultgrouping, $newgroupid);
+    }
+    $joins = $DB->get_records('customgroups_joins', ['groupid' => $group->id]);
+    foreach ($joins as $join) {
+        groups_add_member($newgroupid, $join->user);
+    }
+}
+
+/**
+ * Apply groups tha can be applied from module instance to course.
+ * THIS FUNCTION DOES NOT DEACTIVATE THE MODULE
+ *
+ * @param stdClass $moduleinstance
+ */
+function customgroups_applygroups($moduleinstance) {
+    global $DB;
+    $groups = $DB->get_records('customgroups_groups', ['module' => $moduleinstance->id]);
+    foreach ($groups as $group) {
+        if (!customgroups_canapply($moduleinstance, $group->id)) {
+            continue;
+        }
+        customgroups_applygroup($moduleinstance, $group);
+    }
+}
+
+/**
+ * Apply module instance groups to course and deactive the module
+ *
+ * @param stdClass $moduleinstance
+ */
+function customgroups_applymodule($moduleinstance) {
+    global $DB;
+    customgroups_applygroups($moduleinstance);
+    $moduleinstance->active = 0;
+    $moduleinstance->applied = 1;
+    $DB->update_record('customgroups', $moduleinstance);
 }

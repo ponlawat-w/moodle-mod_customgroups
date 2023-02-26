@@ -51,6 +51,6 @@ class editgroup_form extends moodleform {
             ] : null);
         $mform->setType('description', PARAM_CLEANHTML);
 
-        $this->add_action_buttons(true);
+        $this->add_action_buttons(true, get_string(isset($this->_customdata['id']) ? 'edit' : 'add'));
     }
 }

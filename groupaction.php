@@ -20,7 +20,9 @@
  * @package     mod_customgroups
  * @copyright   2023 Ponlawat Weerapanpisit <ponlawat_w@outlook.co.th>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */require(__DIR__.'/../../config.php');
+ */
+
+require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
 
 $action = required_param('action', PARAM_TEXT);

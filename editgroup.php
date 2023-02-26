@@ -22,7 +22,7 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require(__DIR__.'/../../config.php');
+require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
 
 $instance = optional_param('instance', 0, PARAM_INT);

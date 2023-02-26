@@ -1,20 +1,35 @@
 {{!
     @template mod_customgroups/view
 }}
-{{#active}}
+<div class="float-right">
+    {{#canapplygroups}}
+        <a href="{{{applygroupsurl}}}" class="btn btn-info mx-2">
+            <i class="fa fa-check"></i>
+            {{#str}} applygroups, mod_customgroups {{/str}}
+        </a>
+    {{/canapplygroups}}
     {{#cancreategroup}}
-        <div class="float-right">
-            <a href="{{creategroupurl}}" class="btn btn-secondary">
-                <i class="fa fa-plus"></i>
-                {{#str}} creategroup, mod_customgroups {{/str}}
-            </a>
-        </div>
+        <a href="{{{creategroupurl}}}" class="btn btn-secondary mx-2">
+            <i class="fa fa-plus"></i>
+            {{#str}} creategroup, mod_customgroups {{/str}}
+        </a>
     {{/cancreategroup}}
-{{/active}}
+</div>
+<h1>{{#str}} groups {{/str}}</h1>
+{{#applied}}
+    <div class="alert alert-info">
+        <i class="fa fa-check-circle"></i>
+        {{#str}} applied, mod_customgroups {{/str}}
+        {{#hasapplycap}}
+            <a href="{{{viewgroupurl}}}" class="text-primary"><i class="fa fa-eye"></i> {{#str}} viewgroups, mod_customgroups {{/str}}</a>
+            <a href="{{{deletemoduleurl}}}" class="text-danger"><i class="fa fa-trash"></i> {{#str}} deletemodule, mod_customgroups {{/str}}</a>
+        {{/hasapplycap}}
+    </div>
+{{/applied}}
 {{^active}}
     <div class="alert alert-secondary">
+        <i class="fa fa-exclamation-triangle"></i>
         {{#str}} inactive, mod_customgroups {{/str}}
     </div>
 {{/active}}
-<h1>{{#str}} groups {{/str}}</h1>
 {{>mod_customgroups/groups}}
