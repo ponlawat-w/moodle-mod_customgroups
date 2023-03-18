@@ -76,10 +76,10 @@ foreach ($groups as $group) {
     }
     $warningtexts = [];
     if (!$joinedgroupid) {
-        if ($joinscount >= $moduleinstance->maxmembers) {
+        if ($moduleinstance->maxmembers && $joinscount >= $moduleinstance->maxmembers) {
             $warningtexts[] = ['text' => get_string('cannotjoin_groupreachedmaxmembers', 'mod_customgroups', $moduleinstance->maxmembers)];
         }
-        if (isset($countpercountries[$USER->country]) && $countpercountries[$USER->country] >= $moduleinstance->maxmemberspercountry) {
+        if ($moduleinstance->maxmemberspercountry && isset($countpercountries[$USER->country]) && $countpercountries[$USER->country] >= $moduleinstance->maxmemberspercountry) {
             $warningtexts[] = ['text' =>
                 get_string('cannotjoin_groupreachedmaxmemberspercountry', 'mod_customgroups', [
                     'country' => get_string($USER->country, 'countries'),
