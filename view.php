@@ -55,9 +55,9 @@ foreach ($groups as $group) {
     $users = [];
     foreach ($joins as $join) {
         $users[] = [
-            'url' => new moodle_url('/user/view.php', ['id' => $join->user, 'course' => $course->id]),
-            'name' => fullname($DB->get_record('user', ['id' => $join->user], '*', MUST_EXIST)),
-            'owner' => $join->user == $group->user
+            'url' => new moodle_url('/user/view.php', ['id' => $join->userid, 'course' => $course->id]),
+            'name' => fullname($DB->get_record('user', ['id' => $join->userid], '*', MUST_EXIST)),
+            'owner' => $join->userid == $group->userid
         ];
     }
     $joinscount = count($joins);
@@ -98,8 +98,8 @@ foreach ($groups as $group) {
         'joinscount' => $joinscount,
         'joined' => $group->id == $joinedgroupid,
         'joinable' => customgroups_canjoingroup($group->id, $moduleinstance),
-        'leaveable' => $active && ($joinedgroupid == $group->id && $group->user != $USER->id),
-        'editable' => $active && ($group->user == $USER->id),
+        'leaveable' => $active && ($joinedgroupid == $group->id && $group->userid != $USER->id),
+        'editable' => $active && ($group->userid == $USER->id),
         'editurl' => new moodle_url('/mod/customgroups/editgroup.php', ['id' => $group->id]),
         'removeurl' => new moodle_url('/mod/customgroups/editgroup.php', ['action' => 'remove', 'id' => $group->id]),
         'leaveurl' => new moodle_url('/mod/customgroups/groupaction.php', ['action' => 'leave', 'id' => $group->id]),

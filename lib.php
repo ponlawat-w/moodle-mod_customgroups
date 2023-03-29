@@ -154,11 +154,11 @@ function customgroups_isactive($instance) {
  */
 function customgroups_cancreategroup($modcontext, $instanceid, $userid = 0) {
     global $DB, $USER;
-    $user = $userid ? $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST) : $USER;
+    $user = $userid ? $DB->get_record('userid', ['id' => $userid], '*', MUST_EXIST) : $USER;
     if (!has_capability('mod/customgroups:creategroup', $modcontext, $user)) {
         return false;
     }
-    if ($DB->count_records('customgroups_groups', ['module' => $instanceid, 'user' => $user->id])) {
+    if ($DB->count_records('customgroups_groups', ['module' => $instanceid, 'userid' => $user->id])) {
         return false;
     }
     if (customgroups_getjoinedgroupid($instanceid, $userid)) {
@@ -185,7 +185,7 @@ function customgroups_creategroupfromform($instance, $courseid, $data) {
     $group->name = $data->name;
     $group->description = $data->description['text'];
     $group->descriptionformat = $data->description['format'];
-    $group->user = $USER->id;
+    $group->userid = $USER->id;
     $group->timecreated = time();
 
     $id = $DB->insert_record('customgroups_groups', $group);
@@ -215,7 +215,7 @@ function customgroups_canjoingroup($groupid, $instance, $user = null) {
         return false;
     }
     if ($instance->maxmemberspercountry && $DB->get_record_sql(
-            'SELECT COUNT(*) countrymemberscount FROM {customgroups_joins} j JOIN {user} u ON j.user = u.id WHERE j.groupid = ? AND u.country = ?',
+            'SELECT COUNT(*) countrymemberscount FROM {customgroups_joins} j JOIN {user} u ON j.userid = u.id WHERE j.groupid = ? AND u.country = ?',
             [$groupid, $user->country]
         )->countrymemberscount >= $instance->maxmemberspercountry) {
         return false;
@@ -234,7 +234,7 @@ function customgroups_isjoined($instanceid, $userid = 0) {
     global $DB, $USER;
     $userid = $userid ? $userid : $USER->id;
     return $DB->get_record_sql(
-        'SELECT COUNT(*) joinscount FROM {customgroups_joins} j JOIN {customgroups_groups} g ON j.groupid = g.id WHERE g.module = ? AND j.user = ?',
+        'SELECT COUNT(*) joinscount FROM {customgroups_joins} j JOIN {customgroups_groups} g ON j.groupid = g.id WHERE g.module = ? AND j.userid = ?',
         [$instanceid, $userid]
     )->joinscount > 0;
 }
@@ -250,7 +250,7 @@ function customgroups_getjoinedgroupid($instanceid, $userid = 0) {
     global $DB, $USER;
     $userid = $userid ? $userid : $USER->id;
     $record = $DB->get_record_sql(
-        'SELECT j.groupid groupid FROM {customgroups_joins} j JOIN {customgroups_groups} g ON j.groupid = g.id WHERE g.module = ? AND j.user = ?',
+        'SELECT j.groupid groupid FROM {customgroups_joins} j JOIN {customgroups_groups} g ON j.groupid = g.id WHERE g.module = ? AND j.userid = ?',
         [$instanceid, $userid]
     );
     return $record ? $record->groupid : null;
@@ -270,7 +270,7 @@ function customgroups_joingroup($groupid, $userid = 0) {
 
     $record = new stdClass();
     $record->groupid = $groupid;
-    $record->user = $userid;
+    $record->userid = $userid;
     $record->timejoined = time();
 
     return $DB->insert_record('customgroups_joins', $record);
@@ -288,7 +288,7 @@ function customgroups_leavegroup($groupid, $userid = 0) {
 
     $userid = $userid ? $userid : $USER->id;
 
-    return $DB->delete_records('customgroups_joins', ['groupid' => $groupid, 'user' => $userid]);
+    return $DB->delete_records('customgroups_joins', ['groupid' => $groupid, 'userid' => $userid]);
 }
 
 /**
@@ -340,7 +340,7 @@ function customgroups_applygroup($moduleinstance, $group) {
     }
     $joins = $DB->get_records('customgroups_joins', ['groupid' => $group->id]);
     foreach ($joins as $join) {
-        groups_add_member($newgroupid, $join->user);
+        groups_add_member($newgroupid, $join->userid);
     }
 }
 
@@ -384,7 +384,7 @@ function customgroups_getmemberscountbycountry($groupid) {
     global $DB;
     $results = [];
     $joinedusers = $DB->get_records_sql(
-        'SELECT u.id, u.country FROM {customgroups_joins} j JOIN {user} u ON j.user = u.id WHERE j.groupid = ? ORDER BY u.country ASC',
+        'SELECT u.id, u.country FROM {customgroups_joins} j JOIN {user} u ON j.userid = u.id WHERE j.groupid = ? ORDER BY u.country ASC',
         [$groupid]
     );
     foreach ($joinedusers as $joineduser) {

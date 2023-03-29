@@ -53,7 +53,7 @@ require_capability('mod/customgroups:creategroup', $modulecontext);
 if (!$id && !customgroups_cancreategroup($modulecontext, $moduleinstance->id)) {
     throw new moodle_exception('User does not have permission to create group or there is already a group created by this user in the module.');
 }
-if ($id && $USER->id != $group->user) {
+if ($id && $USER->id != $group->userid) {
     throw new moodle_exception('Cannot edit group because user is not group owner');
 }
 
