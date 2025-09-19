@@ -1,21 +1,29 @@
 {{!
     @template mod_customgroups/view
 }}
-<div class="float-right">
-    {{#canapplygroups}}
-        <a href="{{{applygroupsurl}}}" class="btn btn-info mx-2">
-            <i class="fa fa-check"></i>
-            {{#str}} applygroups, mod_customgroups {{/str}}
-        </a>
-    {{/canapplygroups}}
-    {{#cancreategroup}}
-        <a href="{{{creategroupurl}}}" class="btn btn-secondary mx-2">
-            <i class="fa fa-plus"></i>
-            {{#str}} creategroup, mod_customgroups {{/str}}
-        </a>
-    {{/cancreategroup}}
-</div>
-<h1>{{#str}} groups {{/str}}</h1>
+{{#groupview}}
+    <a href="{{{groupurl}}}">
+        <i class="fa fa-arrow-left"></i>
+        {{#str}} back {{/str}}
+    </a>
+{{/groupview}}
+{{^groupview}}
+    <div class="text-right">
+        {{#canapplygroups}}
+            <a href="{{{applygroupsurl}}}" class="btn btn-info mx-2">
+                <i class="fa fa-check"></i>
+                {{#str}} applygroups, mod_customgroups {{/str}}
+            </a>
+        {{/canapplygroups}}
+        {{#cancreategroup}}
+            <a href="{{{creategroupurl}}}" class="btn btn-secondary mx-2">
+                <i class="fa fa-plus"></i>
+                {{#str}} creategroup, mod_customgroups {{/str}}
+            </a>
+        {{/cancreategroup}}
+    </div>
+    <h2>{{#str}} groups {{/str}}</h2>
+{{/groupview}}
 {{#applied}}
     <div class="alert alert-info">
         <i class="fa fa-check-circle"></i>

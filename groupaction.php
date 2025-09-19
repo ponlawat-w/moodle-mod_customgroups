@@ -25,6 +25,10 @@
 require_once(__DIR__.'/../../config.php');
 require_once(__DIR__.'/lib.php');
 
+if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+    throw new \core\exception\moodle_exception('Invalid method');
+}
+
 $action = required_param('action', PARAM_TEXT);
 $id = required_param('id', PARAM_INT);
 
@@ -36,28 +40,29 @@ $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $cours
 require_login($course, true, $cm);
 
 if (!customgroups_isactive($moduleinstance)) {
-    throw new moodle_exception('Module is not active');
+    throw new \core\exception\moodle_exception('Module is not active');
 }
 
-$modulecontext = context_module::instance($cm->id);
+$modulecontext = \core\context\module::instance($cm->id);
+/** @var \context|false $modulecontext */
 require_capability('mod/customgroups:joingroup', $modulecontext);
 
-$redirecturl = new moodle_url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id], $group ? 'g-' . $group->id : null);
+$redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id], $group ? 'g-' . $group->id : null);
 
 if ($action == 'join') {
     if (!customgroups_canjoingroup($group->id, $moduleinstance)) {
-        throw new moodle_exception('Cannot join group');
+        throw new \core\exception\moodle_exception('Cannot join group');
     }
     customgroups_joingroup($group->id);
     redirect($redirecturl);
     exit;
 } else if ($action == 'leave') {
     if (customgroups_getjoinedgroupid($moduleinstance->id) != $group->id) {
-        throw new moodle_exception('User is not in the group');
+        throw new \core\exception\moodle_exception('User is not in the group');
     }
     customgroups_leavegroup($group->id);
     redirect($redirecturl);
     exit;
 } else {
-    throw new moodle_exception('Invalid action');
+    throw new \core\exception\moodle_exception('Invalid action');
 }

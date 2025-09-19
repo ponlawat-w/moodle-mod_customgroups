@@ -31,6 +31,8 @@ $id = optional_param('id', 0, PARAM_INT);
 // Activity instance id.
 $instance = optional_param('instance', 0, PARAM_INT);
 
+$groupid = optional_param('g', null, PARAM_INT);
+
 if ($id) {
     $cm = get_coursemodule_from_id('customgroups', $id, 0, false, MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
@@ -43,11 +45,21 @@ if ($id) {
 
 require_login($course, true, $cm);
 
-$modulecontext = context_module::instance($cm->id);
+$modulecontext = \core\context\module::instance($cm->id);
 
 $active = customgroups_isactive($moduleinstance);
 
-$groups = $DB->get_records('customgroups_groups', ['module' => $moduleinstance->id], 'name ASC');
+$groups = $DB->get_records(
+    'customgroups_groups',
+    array_merge(
+        ['module' => $moduleinstance->id],
+        is_null($groupid) ? [] : ['id' => $groupid]
+    ),
+    'name ASC'
+);
+if ($groupid && !count($groups)) {
+    throw new \core\exception\moodle_exception('Group not found');
+}
 $joinedgroupid = customgroups_getjoinedgroupid($moduleinstance->id);
 $groupsdata = [];
 foreach ($groups as $group) {
@@ -55,7 +67,7 @@ foreach ($groups as $group) {
     $users = [];
     foreach ($joins as $join) {
         $users[] = [
-            'url' => new moodle_url('/user/view.php', ['id' => $join->userid, 'course' => $course->id]),
+            'url' => new \core\url('/user/view.php', ['id' => $join->userid, 'course' => $course->id]),
             'name' => fullname($DB->get_record('user', ['id' => $join->userid], '*', MUST_EXIST)),
             'owner' => $join->userid == $group->userid
         ];
@@ -100,10 +112,9 @@ foreach ($groups as $group) {
         'joinable' => customgroups_canjoingroup($group->id, $moduleinstance),
         'leaveable' => $active && ($joinedgroupid == $group->id && $group->userid != $USER->id),
         'editable' => $active && ($group->userid == $USER->id),
-        'editurl' => new moodle_url('/mod/customgroups/editgroup.php', ['id' => $group->id]),
-        'removeurl' => new moodle_url('/mod/customgroups/editgroup.php', ['action' => 'remove', 'id' => $group->id]),
-        'leaveurl' => new moodle_url('/mod/customgroups/groupaction.php', ['action' => 'leave', 'id' => $group->id]),
-        'joinurl' => new moodle_url('/mod/customgroups/groupaction.php', ['action' => 'join', 'id' => $group->id]),
+        'viewurl' => new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]),
+        'editurl' => new \core\url('/mod/customgroups/editgroup.php', ['id' => $group->id]),
+        'removeurl' => new \core\url('/mod/customgroups/editgroup.php', ['action' => 'remove', 'id' => $group->id]),
         'users' => $users,
         'countries' => $countries,
         'warningtexts' => $warningtexts
@@ -112,18 +123,22 @@ foreach ($groups as $group) {
 
 $data = [];
 $data['active'] = $active;
+$data['groupview'] = !is_null($groupid);
+$data['actionurl'] = new \core\url('/mod/customgroups/groupaction.php');
+$data['groupurl'] = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);
 $data['applied'] = $moduleinstance->applied;
 $data['minmembers'] = $moduleinstance->minmembers;
 $data['maxmembers'] = $moduleinstance->maxmembers;
 $data['maxmemberspercountry'] = $moduleinstance->maxmemberspercountry;
 $data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
-$data['hasapplycap'] = has_capability('mod/customgroups:applygroups', $modulecontext);
+/** @var \context|false $modulecontext */
+$data['hasapplycap'] = $modulecontext ? has_capability('mod/customgroups:applygroups', $modulecontext) : false;
 $data['canapplygroups'] = !$moduleinstance->applied && $data['hasapplycap'];
-$data['creategroupurl'] = new moodle_url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
-$data['applygroupsurl'] = new moodle_url('/mod/customgroups/applygroups.php', ['instance' => $moduleinstance->id]);
+$data['creategroupurl'] = new \core\url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
+$data['applygroupsurl'] = new \core\url('/mod/customgroups/applygroups.php', ['instance' => $moduleinstance->id]);
 $data['groups'] = $groupsdata;
-$data['viewgroupurl'] = $moduleinstance->applied ? new moodle_url('/group/index.php', ['id' => $course->id]) : null;
-$data['deletemoduleurl'] = $moduleinstance->applied ? new moodle_url('/course/mod.php', ['delete' => $cm->id]) : null;
+$data['viewgroupurl'] = $moduleinstance->applied ? new \core\url('/group/index.php', ['id' => $course->id]) : null;
+$data['deletemoduleurl'] = $moduleinstance->applied ? new \core\url('/course/mod.php', ['delete' => $cm->id]) : null;
 
 $PAGE->set_url('/mod/customgroups/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($moduleinstance->name));

@@ -30,7 +30,7 @@ $id = optional_param('id', 0, PARAM_INT);
 $action = optional_param('action', null, PARAM_TEXT);
 
 if (!$instance && !$id) {
-    throw new moodle_exception('Parameters error');
+    throw new \core\exception\moodle_exception('Parameters error');
 }
 
 $group = null;
@@ -45,19 +45,26 @@ $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $cours
 require_login($course, true, $cm);
 
 if (!customgroups_isactive($moduleinstance)) {
-    throw new moodle_exception('Module is not active');
+    throw new \core\exception\moodle_exception('Module is not active');
 }
 
-$modulecontext = context_module::instance($cm->id);
+$modulecontext = \core\context\module::instance($cm->id);
+/** @var \context|false $modulecontext */
 require_capability('mod/customgroups:creategroup', $modulecontext);
 if (!$id && !customgroups_cancreategroup($modulecontext, $moduleinstance->id)) {
-    throw new moodle_exception('User does not have permission to create group or there is already a group created by this user in the module.');
+    throw new \core\exception\moodle_exception('User does not have permission to create group or there is already a group created by this user in the module.');
 }
 if ($id && $USER->id != $group->userid) {
-    throw new moodle_exception('Cannot edit group because user is not group owner');
+    throw new \core\exception\moodle_exception('Cannot edit group because user is not group owner');
 }
 
-$redirecturl = new moodle_url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id], $group ? 'g-' . $group->id : null);
+$redirecturl = new \core\url(
+    '/mod/customgroups/view.php',
+    array_merge(
+        ['instance' => $moduleinstance->id],
+        $group ? ['g' => $group->id] : []
+    )
+);
 
 $form = null;
 if ($group && $action == 'remove') {
@@ -74,6 +81,7 @@ if ($group && $action == 'remove') {
         exit;
     }
     if ($form->is_submitted()) {
+        $redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);
         customgroups_deletegroup($group->id);
         redirect($redirecturl);
         exit;
@@ -103,7 +111,7 @@ if ($group && $action == 'remove') {
                 redirect($redirecturl . '#g-' . $newid);
                 exit;
             }
-            throw new moodle_exception('Cannot create group');
+            throw new \core\exception\moodle_exception('Cannot create group');
         }
         $group->name = $data->name;
         $group->description = $data->description['text'];
@@ -112,7 +120,7 @@ if ($group && $action == 'remove') {
             redirect($redirecturl);
             exit;
         }
-        throw new moodle_exception('Cannot edit group');
+        throw new \core\exception\moodle_exception('Cannot edit group');
     }
 }
 

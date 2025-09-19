@@ -33,14 +33,12 @@ $string['customgroups:applygroups'] = 'Apply Groups to Course';
 $string['customgroups:addinstance'] = 'Add a Module Instance';
 $string['customgroups:creategroup'] = 'Create a New Group';
 $string['customgroups:joingroup'] = 'Join a Group';
-
 $string['admin_defaultminmembers'] = 'Default minimum members per group';
 $string['admin_defaultminmembers_description'] = 'This will be default settings for new module instances and can be overwritten in each module settings. 0 to be unlimited.';
 $string['admin_defaultmaxmembers'] = 'Default maximum members per group';
 $string['admin_defaultmaxmembers_description'] = 'This will be default settings for new module instances and can be overwritten in each module settings. 0 to be unlimited.';
 $string['admin_defaultmaxmemberspercountry'] = 'Defaul maximum members per country per group';
 $string['admin_defaultmaxmemberspercountry_description'] = 'This will be default settings for new module instances and can be overwritten in each module settings. 0 to be unlimited.';
-
 $string['timelinesettings'] = 'Timeline Settings';
 $string['openforcreatingorjoining'] = 'Open for creating or joining groups';
 $string['openforcreatingorjoining_help'] = 'If checked, students can create a new groups or join existing groups.';
@@ -56,10 +54,8 @@ $string['maxmembers'] = 'Maximum members';
 $string['maxmembers_help'] = 'Maximum number of members per group, 0 for unlimited. Students will not be able to join groups that reached the maximum capacity.';
 $string['maxmemberspercountry'] = 'Maximum members per country';
 $string['maxmemberspercountry_help'] = 'Maximum number of members for each country in a group, 0 for unlimited. Students will not be able to join groups having the number of members from the same country reaching the maximum capacoty.';
-
 $string['error_maxmemberslessthanminmembers'] = 'The maximum number of members must be greater than the minimum number.';
 $string['error_maxmemberslessthanmaxmemberspercountry'] = 'The maximum number of members must be greater than per country.';
-
 $string['creategroup'] = 'Create a new group';
 $string['applygroups'] = 'Apply groups to course';
 $string['editgroup'] = 'Edit group';
@@ -77,12 +73,9 @@ $string['deletemodule'] = 'Delete Module';
 $string['minmembersnotsatisfied'] = 'This group needs to have at least {$a} members to be valid.';
 $string['cannotjoin_groupreachedmaxmembers'] = 'You cannot join this group because it already has members reaching the maximum of {$a}.';
 $string['cannotjoin_groupreachedmaxmemberspercountry'] = 'You cannot join this group because it already has members from your country ({$a->country}) reaching the maximum of {$a->maxmembers}.';
-
 $string['groupname'] = 'Group Name';
-
 $string['applyinggroupssummary'] = '{$a->groups} group(s) with total {$a->members} member(s) will be applied to this course.';
 $string['inaplicablegroupssummary'] = '{$a->groups} group(s) with total {$a->members} member(s) cannot be applied to this course due to module conditions.';
-
 $string['confirmation'] = 'Confirmation';
 $string['confirm_removegroup'] = 'Are you sure you want to remove group {$a}?';
 $string['confirm_applygroups'] = 'Are you sure you want to apply groups to course? The activity module will be deactivated after applying.';

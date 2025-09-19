@@ -33,14 +33,15 @@ $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $cours
 
 require_login($course, true, $cm);
 
-$modulecontext = context_module::instance($cm->id);
+$modulecontext = \core\context\module::instance($cm->id);
+/** @var \context|false $modulecontext */
 require_capability('mod/customgroups:applygroups', $modulecontext);
 
 if ($moduleinstance->applied) {
-    throw new moodle_exception('Module already applied to course');
+    throw new \core\exception\moodle_exception('Module already applied to course');
 }
 
-$redirecturl = new moodle_url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);
+$redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);
 
 $groups = $DB->get_records('customgroups_groups', ['module' => $moduleinstance->id]);
 $totalgroupscount = 0;
@@ -59,21 +60,21 @@ foreach ($groups as $group) {
     }
 }
 
-$message = html_writer::tag('p', get_string('confirm_applygroups', 'mod_customgroups'));
-$message .= html_writer::start_tag('ul');
-$message .= html_writer::tag(
+$message = \core\output\html_writer::tag('p', get_string('confirm_applygroups', 'mod_customgroups'));
+$message .= \core\output\html_writer::start_tag('ul');
+$message .= \core\output\html_writer::tag(
     'li', 
     get_string('applyinggroupssummary', 'mod_customgroups', ['groups' => $totalgroupscount, 'members' => $totalmemberscount]),
     ['class' => 'text-primary']
 );
 if ($totalinaplicablegroupscount > 0) {
-    $message .= html_writer::tag(
+    $message .= \core\output\html_writer::tag(
         'li',
         get_string('inaplicablegroupssummary', 'mod_customgroups', ['groups' => $totalinaplicablegroupscount, 'members' => $totalinaplicablememberscount]),
         ['class' => 'text-danger']
     );
 }
-$message .= html_writer::end_tag('li');
+$message .= \core\output\html_writer::end_tag('li');
 
 require_once(__DIR__ . '/classes/form/confirm_form.php');
 $form = new confirm_form(null, [
