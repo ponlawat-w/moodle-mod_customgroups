@@ -3,67 +3,76 @@
 }}
 {{#groups}}
     <a id="g-{{id}}"></a>
-    <div class="card my-2"><div class="card-body">
-        {{#editable}}
-            <div class="float-right">
-                <a href="{{{editurl}}}" class="btn btn-secondary"><i class="fa fa-edit"></i> {{#str}} edit {{/str}}</a>
-                <a href="{{{removeurl}}}" class="btn btn-danger"><i class="fa fa-trash"></i> {{#str}} remove {{/str}}</a>
-            </div>
-        {{/editable}}
-        <h4>
-            {{#groupview}}
-                {{name}}
-            {{/groupview}}
-            {{^groupview}}
-                <a href="{{{viewurl}}}">{{name}}</a>
-            {{/groupview}}
-        </h4>
-        {{#warningtexts}}
-            <div class="small text-danger"><i class="fa fa-exclamation-circle"></i> {{text}}</div>
-        {{/warningtexts}}
-        {{#joined}}<div class="small text-success"><i class="fa fa-user"></i> {{#str}} joined, mod_customgroups {{/str}}</div>{{/joined}}
-        {{#description}}<div class="px-2 pt-3">{{{description}}}</div>{{/description}}
-        {{#leaveable}}
-            <form action="{{{actionurl}}}" method="post">
-                <input type="hidden" name="action" value="leave">
-                <input type="hidden" name="id" value="{{{id}}}">
-                <input type="submit" class="btn btn-secondary" value="{{#str}} leave, mod_customgroups {{/str}}">
-            </form>
-        {{/leaveable}}
-        {{#joinable}}
-            <form action="{{{actionurl}}}" method="post">
-                <input type="hidden" name="action" value="join">
-                <input type="hidden" name="id" value="{{{id}}}">
-                <input type="submit" class="btn btn-secondary" value="{{#str}} join, mod_customgroups {{/str}}">
-            </form>
-        {{/joinable}}
-        <hr>
-        <div class="row mx-2">
-            <div class="col-12{{#countries}} col-lg-6{{/countries}}">
-                <strong>
-                    <i class="fa fa-users"></i>
-                    {{#str}} members, mod_customgroups {{/str}}
-                    ({{joinscount}}{{#maxmembers}}/{{maxmembers}}{{/maxmembers}})
-                </strong>
-                <ul class="small">
-                    {{#users}}<li>
-                        <a href="{{{url}}}">{{name}}</a>
-                        {{#owner}} ({{#str}} owner, mod_customgroups {{/str}}){{/owner}}
-                    </li>{{/users}}
-                </ul>
-            </div>
-            {{#maxmemberspercountry}}<div class="col-12 col-lg-6">
-                <strong>
-                    <i class="fa fa-globe"></i>
-                    {{#str}} membersbycountry, mod_customgroups {{/str}}
-                </strong>
-                <ul class="small">
-                    {{#countries}}<li class="{{{class}}}">
+    <div class="card my-2">
+        <div class="mod_customgroups-cardbody card-body">
+            {{#image}}
+                <div class="mod_customgroups-image">
+                    <img src="{{{image}}}">
+                </div>
+            {{/image}}
+            <div class="mod_customgroups-content">
+                {{#editable}}
+                    <div class="float-right">
+                        <a href="{{{editurl}}}" class="btn btn-secondary"><i class="fa fa-edit"></i> {{#str}} edit {{/str}}</a>
+                        <a href="{{{removeurl}}}" class="btn btn-danger"><i class="fa fa-trash"></i> {{#str}} remove {{/str}}</a>
+                    </div>
+                {{/editable}}
+                <h4>
+                    {{#groupview}}
                         {{name}}
-                        ({{count}}/{{maxmemberspercountry}})
-                    </li>{{/countries}}
-                </ul>
-            </div>{{/maxmemberspercountry}}
+                    {{/groupview}}
+                    {{^groupview}}
+                        <a href="{{{viewurl}}}">{{name}}</a>
+                    {{/groupview}}
+                </h4>
+                {{#warningtexts}}
+                    <div class="small text-danger"><i class="fa fa-exclamation-circle"></i> {{text}}</div>
+                {{/warningtexts}}
+                {{#joined}}<div class="small text-success"><i class="fa fa-user"></i> {{#str}} joined, mod_customgroups {{/str}}</div>{{/joined}}
+                {{#description}}<div class="px-2 pt-3">{{{description}}}</div>{{/description}}
+                {{#leaveable}}
+                    <form action="{{{actionurl}}}" method="post">
+                        <input type="hidden" name="action" value="leave">
+                        <input type="hidden" name="id" value="{{{id}}}">
+                        <input type="submit" class="btn btn-secondary" value="{{#str}} leave, mod_customgroups {{/str}}">
+                    </form>
+                {{/leaveable}}
+                {{#joinable}}
+                    <form action="{{{actionurl}}}" method="post">
+                        <input type="hidden" name="action" value="join">
+                        <input type="hidden" name="id" value="{{{id}}}">
+                        <input type="submit" class="btn btn-secondary" value="{{#str}} join, mod_customgroups {{/str}}">
+                    </form>
+                {{/joinable}}
+                <hr>
+                <div class="row mx-2">
+                    <div class="col-12{{#countries}} col-lg-6{{/countries}}">
+                        <strong>
+                            <i class="fa fa-users"></i>
+                            {{#str}} members, mod_customgroups {{/str}}
+                            ({{joinscount}}{{#maxmembers}}/{{maxmembers}}{{/maxmembers}})
+                        </strong>
+                        <ul class="small">
+                            {{#users}}<li>
+                                <a href="{{{url}}}">{{name}}</a>
+                                {{#owner}} ({{#str}} owner, mod_customgroups {{/str}}){{/owner}}
+                            </li>{{/users}}
+                        </ul>
+                    </div>
+                    {{#maxmemberspercountry}}<div class="col-12 col-lg-6">
+                        <strong>
+                            <i class="fa fa-globe"></i>
+                            {{#str}} membersbycountry, mod_customgroups {{/str}}
+                        </strong>
+                        <ul class="small">
+                            {{#countries}}<li class="{{{class}}}">
+                                {{name}}
+                                ({{count}}/{{maxmemberspercountry}})
+                            </li>{{/countries}}
+                        </ul>
+                    </div>{{/maxmemberspercountry}}
+                </div>
+            </div>
         </div>
-    </div></div>
+    </div>
 {{/groups}}

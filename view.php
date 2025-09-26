@@ -115,6 +115,7 @@ foreach ($groups as $group) {
         'viewurl' => new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]),
         'editurl' => new \core\url('/mod/customgroups/editgroup.php', ['id' => $group->id]),
         'removeurl' => new \core\url('/mod/customgroups/editgroup.php', ['action' => 'remove', 'id' => $group->id]),
+        'image' => customgroups_getimageurl($modulecontext, $group->id),
         'users' => $users,
         'countries' => $countries,
         'warningtexts' => $warningtexts

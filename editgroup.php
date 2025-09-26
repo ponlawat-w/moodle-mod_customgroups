@@ -66,6 +66,8 @@ $redirecturl = new \core\url(
     )
 );
 
+/** @var \core\context\module $modulecontext */
+
 $form = null;
 if ($group && $action == 'remove') {
     require_once(__DIR__ . '/classes/form/confirm_form.php');
@@ -82,7 +84,7 @@ if ($group && $action == 'remove') {
     }
     if ($form->is_submitted()) {
         $redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);
-        customgroups_deletegroup($group->id);
+        customgroups_deletegroup($modulecontext, $group->id);
         redirect($redirecturl);
         exit;
     }
@@ -97,6 +99,19 @@ if ($group && $action == 'remove') {
         $customdata['name'] = $group->name;
         $customdata['description'] = $group->description;
         $customdata['descriptionformat'] = $group->descriptionformat;
+        $customdata['image'] = file_get_submitted_draft_itemid('image');
+        file_prepare_draft_area(
+            $customdata['image'],
+            $modulecontext->id,
+            'mod_customgroups',
+            'groupimages',
+            $group->id,
+            [
+                'subdirs' => 0,
+                'maxfiles' => 1,
+                'accepted_types' => ['image']
+            ]
+        );
     }
     
     $form = new editgroup_form(null, $customdata);
@@ -108,6 +123,13 @@ if ($group && $action == 'remove') {
         $data = $form->get_data();
         if (!$data->id) {
             if ($newid = customgroups_creategroupfromform($moduleinstance->id, $course->id, $data)) {
+                file_save_draft_area_files(
+                    $data->image,
+                    $modulecontext->id,
+                    'mod_customgroups',
+                    'groupimages',
+                    $newid
+                );
                 redirect($redirecturl . '#g-' . $newid);
                 exit;
             }
@@ -117,6 +139,14 @@ if ($group && $action == 'remove') {
         $group->description = $data->description['text'];
         $group->descriptionformat = $data->description['format'];
         if ($DB->update_record('customgroups_groups', $group)) {
+            customgroups_deleteexistingimages($modulecontext, $group->id);
+            file_save_draft_area_files(
+                $data->image,
+                $modulecontext->id,
+                'mod_customgroups',
+                'groupimages',
+                $group->id
+            );
             redirect($redirecturl);
             exit;
         }

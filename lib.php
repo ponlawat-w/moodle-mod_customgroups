@@ -121,9 +121,14 @@ function customgroups_delete_instance($id) {
         return false;
     }
 
+    $coursemodule = get_coursemodule_from_instance('customgroups', $id);
+    $modulecontext = \core\context\module::instance($coursemodule->id);
+    $fs = get_file_storage();
+    $fs->delete_area_files($modulecontext->id, 'mod_customgroups');
+
     $groups = $DB->get_records('customgroups_groups', ['module' => $id]);
     foreach ($groups as $group) {
-        if (!customgroups_deletegroup($group->id)) {
+        if (!customgroups_deletegroup($modulecontext, $group->id)) {
             return false;
         }
     }
@@ -147,7 +152,7 @@ function customgroups_isactive($instance) {
 /**
  * Returns true if user can create a new group in a module instance
  *
- * @param context_module $modcontext
+ * @param \context $modcontext
  * @param int $instanceid
  * @param int $userid
  * @return bool
@@ -294,10 +299,12 @@ function customgroups_leavegroup($groupid, $userid = 0) {
 /**
  * Delete a custom group
  *
+ * @param \core\context\module $modulecontext
  * @param int $groupid
  */
-function customgroups_deletegroup($groupid) {
+function customgroups_deletegroup($modulecontext, $groupid) {
     global $DB;
+    customgroups_deleteexistingimages($modulecontext, $groupid);
     if (!$DB->delete_records('customgroups_joins', ['groupid' => $groupid])) {
         return false;
     }
@@ -333,7 +340,7 @@ function customgroups_applygroup($moduleinstance, $group) {
     $groupdata->name = $group->name;
     $newgroupid = groups_create_group($groupdata);
     if (!$newgroupid) {
-        throw new moodle_exception('Cannot create group: ' . $group->id . ' - ' . $group->name);
+        throw new \core\exception\moodle_exception('Cannot create group: ' . $group->id . ' - ' . $group->name);
     }
     if ($moduleinstance->defaultgrouping) {
         groups_assign_grouping($moduleinstance->defaultgrouping, $newgroupid);
@@ -394,4 +401,75 @@ function customgroups_getmemberscountbycountry($groupid) {
         $results[$joineduser->country]++;
     }
     return $results;
+}
+
+function customgroups_deleteexistingimages(\core\context\module $modulecontext, $groupid) {
+    $fs = get_file_storage();
+    $fs->delete_area_files(
+        $modulecontext->id,
+        'mod_customgroups',
+        'groupimages',
+        $groupid
+    );
+}
+
+function customgroups_getimageurl(\core\context\module $modulecontext, $groupid) {
+    $fs = get_file_storage();
+    $files = $fs->get_area_files(
+        $modulecontext->id,
+        'mod_customgroups',
+        'groupimages',
+        $groupid
+    );
+    foreach ($files as $file) {
+        if ($file->get_filename() == '.') {
+            continue;
+        }
+        return \core\url::make_pluginfile_url(
+            $modulecontext->id,
+            'mod_customgroups',
+            'groupimages',
+            $groupid,
+            $file->get_filepath(),
+            $file->get_filename()
+        );
+    }
+    return null;
+}
+
+/**
+ * Serve the requested file for the customgroups plugin.
+ *
+ * @param stdClass $course the course object
+ * @param stdClass $cm the course module object
+ * @param \core\context $context the context
+ * @param string $filearea the name of the file area
+ * @param array $args extra arguments (itemid, path)
+ * @param bool $forcedownload whether or not force download
+ * @param array $options additional options affecting the file serving
+ * @return bool false if the file not found, just send the file otherwise and do not return anything
+ */
+function customgroups_pluginfile(
+    $course,
+    $cm,
+    $context,
+    string $filearea,
+    array $args,
+    bool $forcedownload,
+    array $options
+) {
+    if ($filearea != 'groupimages') {
+        return false;
+    }
+    require_login($course, false, $cm);
+
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return false;
+    }
+
+    [$itemid, $filename] = $args;
+
+    $fs = get_file_storage();
+    $file = $fs->get_file($context->id, 'mod_customgroups', $filearea, $itemid, '/', $filename);
+    send_stored_file($file, DAYMINS, 0, $forcedownload, $options);
 }
