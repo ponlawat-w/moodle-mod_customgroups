@@ -24,21 +24,29 @@
 
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
-require_once($CFG->dirroot.'/mod/forum/lib.php');
-require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->dirroot . '/mod/forum/lib.php');
+require_once($CFG->libdir . '/formslib.php');
 
+/**
+ * Confirmation form
+ */
 class confirm_form extends moodleform {
+    /**
+     * Form definition
+     */
     public function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('html',
-            html_writer::tag(
+        $mform->addElement(
+            'html',
+            \core\output\html_writer::tag(
                 'h1',
                 isset($this->_customdata['title']) ? $this->_customdata['title'] : get_string('confirmation', 'mod_customgroups')
-            ));
-        $mform->addElement('html', html_writer::tag('p', $this->_customdata['message']));
+            )
+        );
+        $mform->addElement('html', \core\output\html_writer::tag('p', $this->_customdata['message']));
 
-        foreach($this->_customdata as $key => $value) {
+        foreach ($this->_customdata as $key => $value) {
             if ($key == 'message' || $key == 'title') {
                 continue;
             }

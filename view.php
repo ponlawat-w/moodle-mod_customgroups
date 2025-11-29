@@ -22,8 +22,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
-require_once(__DIR__.'/lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
 // Course module id.
 $id = optional_param('id', 0, PARAM_INT);
@@ -35,11 +35,11 @@ $groupid = optional_param('g', null, PARAM_INT);
 
 if ($id) {
     $cm = get_coursemodule_from_id('customgroups', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $moduleinstance = $DB->get_record('customgroups', array('id' => $cm->instance), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $moduleinstance = $DB->get_record('customgroups', ['id' => $cm->instance], '*', MUST_EXIST);
 } else {
-    $moduleinstance = $DB->get_record('customgroups', array('id' => $instance), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
+    $moduleinstance = $DB->get_record('customgroups', ['id' => $instance], '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $moduleinstance->course], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $course->id, false, MUST_EXIST);
 }
 
@@ -69,7 +69,7 @@ foreach ($groups as $group) {
         $users[] = [
             'url' => new \core\url('/user/view.php', ['id' => $join->userid, 'course' => $course->id]),
             'name' => fullname($DB->get_record('user', ['id' => $join->userid], '*', MUST_EXIST)),
-            'owner' => $join->userid == $group->userid
+            'owner' => $join->userid == $group->userid,
         ];
     }
     $joinscount = count($joins);
@@ -82,21 +82,31 @@ foreach ($groups as $group) {
             $countries[] = [
                 'name' => get_string($country, 'countries'),
                 'count' => $count,
-                'class' => $country == $USER->country && $count >= $moduleinstance->maxmemberspercountry ? 'text-danger' : ''
+                'class' => $country == $USER->country && $count >= $moduleinstance->maxmemberspercountry ? 'text-danger' : '',
             ];
         }
     }
     $warningtexts = [];
     if (!$joinedgroupid) {
         if ($moduleinstance->maxmembers && $joinscount >= $moduleinstance->maxmembers) {
-            $warningtexts[] = ['text' => get_string('cannotjoin_groupreachedmaxmembers', 'mod_customgroups', $moduleinstance->maxmembers)];
+            $warningtexts[] = [
+                'text' => get_string('cannotjoin_groupreachedmaxmembers', 'mod_customgroups', $moduleinstance->maxmembers),
+            ];
         }
-        if ($moduleinstance->maxmemberspercountry && isset($countpercountries[$USER->country]) && $countpercountries[$USER->country] >= $moduleinstance->maxmemberspercountry) {
+        if (
+            $moduleinstance->maxmemberspercountry
+            && isset($countpercountries[$USER->country])
+            && $countpercountries[$USER->country] >= $moduleinstance->maxmemberspercountry
+        ) {
             $warningtexts[] = ['text' =>
-                get_string('cannotjoin_groupreachedmaxmemberspercountry', 'mod_customgroups', [
-                    'country' => get_string($USER->country, 'countries'),
-                    'maxmembers' => $moduleinstance->maxmemberspercountry
-                ])
+                get_string(
+                    'cannotjoin_groupreachedmaxmemberspercountry',
+                    'mod_customgroups',
+                    [
+                        'country' => get_string($USER->country, 'countries'),
+                        'maxmembers' => $moduleinstance->maxmemberspercountry,
+                    ]
+                ),
             ];
         }
     }
@@ -118,7 +128,7 @@ foreach ($groups as $group) {
         'image' => customgroups_getimageurl($modulecontext, $group->id),
         'users' => $users,
         'countries' => $countries,
-        'warningtexts' => $warningtexts
+        'warningtexts' => $warningtexts,
     ];
 }
 
@@ -133,6 +143,7 @@ $data['maxmembers'] = $moduleinstance->maxmembers;
 $data['maxmemberspercountry'] = $moduleinstance->maxmemberspercountry;
 $data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
 /** @var \context|false $modulecontext */
+$modulecontext;
 $data['hasapplycap'] = $modulecontext ? has_capability('mod/customgroups:applygroups', $modulecontext) : false;
 $data['canapplygroups'] = !$moduleinstance->applied && $data['hasapplycap'];
 $data['creategroupurl'] = new \core\url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
@@ -141,7 +152,7 @@ $data['groups'] = $groupsdata;
 $data['viewgroupurl'] = $moduleinstance->applied ? new \core\url('/group/index.php', ['id' => $course->id]) : null;
 $data['deletemoduleurl'] = $moduleinstance->applied ? new \core\url('/course/mod.php', ['delete' => $cm->id]) : null;
 
-$PAGE->set_url('/mod/customgroups/view.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/customgroups/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($moduleinstance->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($modulecontext);

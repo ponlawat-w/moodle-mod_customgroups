@@ -24,10 +24,16 @@
 
 defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
-require_once($CFG->dirroot.'/mod/forum/lib.php');
-require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->dirroot . '/mod/forum/lib.php');
+require_once($CFG->libdir . '/formslib.php');
 
+/**
+ * A form for edit custom group
+ */
 class editgroup_form extends moodleform {
+    /**
+     * Form definition
+     */
     public function definition() {
         $mform = $this->_form;
 
@@ -38,7 +44,7 @@ class editgroup_form extends moodleform {
         $mform->addElement('hidden', 'id')
             ->setValue(isset($this->_customdata['id']) ? $this->_customdata['id'] : null);
         $mform->setType('id', PARAM_INT);
-        
+
         $mform->addElement('text', 'name', get_string('groupname', 'mod_customgroups'), ['size' => 64])
             ->setValue(isset($this->_customdata['name']) ? $this->_customdata['name'] : null);
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
@@ -52,14 +58,14 @@ class editgroup_form extends moodleform {
             [
                 'subdirs' => 0,
                 'maxfiles' => 1,
-                'accepted_types' => ['image']
+                'accepted_types' => ['image'],
             ]
         )->setValue(isset($this->_customdata['image']) ? $this->_customdata['image'] : null);
 
         $mform->addElement('editor', 'description', get_string('description'))
             ->setValue(isset($this->_customdata['description']) && isset($this->_customdata['descriptionformat']) ? [
                 'text' => $this->_customdata['description'],
-                'format' => $this->_customdata['descriptionformat']
+                'format' => $this->_customdata['descriptionformat'],
             ] : null);
         $mform->setType('description', PARAM_CLEANHTML);
 

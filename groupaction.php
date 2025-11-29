@@ -22,8 +22,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
-require_once(__DIR__.'/lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
 if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     throw new \core\exception\moodle_exception('Invalid method');
@@ -33,8 +33,8 @@ $action = required_param('action', PARAM_TEXT);
 $id = required_param('id', PARAM_INT);
 
 $group = $DB->get_record('customgroups_groups', ['id' => $id], '*', MUST_EXIST);
-$moduleinstance = $DB->get_record('customgroups', array('id' => $group->module), '*', MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
+$moduleinstance = $DB->get_record('customgroups', ['id' => $group->module], '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $moduleinstance->course], '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $course->id, false, MUST_EXIST);
 
 require_login($course, true, $cm);
@@ -43,8 +43,8 @@ if (!customgroups_isactive($moduleinstance)) {
     throw new \core\exception\moodle_exception('Module is not active');
 }
 
-$modulecontext = \core\context\module::instance($cm->id);
 /** @var \context|false $modulecontext */
+$modulecontext = \core\context\module::instance($cm->id);
 require_capability('mod/customgroups:joingroup', $modulecontext);
 
 $redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id], $group ? 'g-' . $group->id : null);
