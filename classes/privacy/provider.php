@@ -239,11 +239,11 @@ class provider implements
     /**
      * Delete data of userid in a module context
      *
-     * @param \context $context
-     * @param integer $userid
+     * @param \core\context\module $context
+     * @param int $userid
      * @return void
      */
-    private static function delete_data_for_user_in_module_context(\context $context, int $userid) {
+    private static function delete_data_for_user_in_module_context(\core\context\module $context, int $userid) {
         global $DB;
         /** @var \moodle_database $DB */
         $DB;
@@ -286,6 +286,8 @@ class provider implements
             if ($context->contextlevel != CONTEXT_MODULE) {
                 continue;
             }
+            /** @var \core\context\module $context */
+            $context;
             self::delete_data_for_user_in_module_context($context, $user->id);
         }
     }

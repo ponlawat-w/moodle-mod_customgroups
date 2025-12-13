@@ -285,6 +285,7 @@ function customgroups_getjoinedgroupid($instanceid, $userid = 0) {
  * THIS METHOD DOES NOT CHECK MODULE CONDITIONS
  *
  * @param int $groupid
+ * @param int $userid
  * @return int
  */
 function customgroups_joingroup($groupid, $userid = 0) {

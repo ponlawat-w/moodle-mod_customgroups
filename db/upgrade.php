@@ -25,7 +25,7 @@
 /**
  * Upgrade function
  *
- * @param $oldversion
+ * @param int $oldversion
  * @return bool
  */
 function xmldb_customgroups_upgrade($oldversion) {
