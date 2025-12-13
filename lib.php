@@ -116,7 +116,7 @@ function customgroups_update_instance($moduleinstance) {
 function customgroups_delete_instance($id) {
     global $DB;
 
-    $exists = $DB->get_record('customgroups', array('id' => $id));
+    $exists = $DB->get_record('customgroups', ['id' => $id]);
     if (!$exists) {
         return false;
     }
@@ -132,7 +132,7 @@ function customgroups_delete_instance($id) {
             return false;
         }
     }
-    if (!$DB->delete_records('customgroups', array('id' => $id))) {
+    if (!$DB->delete_records('customgroups', ['id' => $id])) {
         return false;
     }
 
@@ -219,10 +219,17 @@ function customgroups_canjoingroup($groupid, $instance, $user = null) {
     if ($instance->maxmembers && $DB->count_records('customgroups_joins', ['groupid' => $groupid]) >= $instance->maxmembers) {
         return false;
     }
-    if ($instance->maxmemberspercountry && $DB->get_record_sql(
-            'SELECT COUNT(*) countrymemberscount FROM {customgroups_joins} j JOIN {user} u ON j.userid = u.id WHERE j.groupid = ? AND u.country = ?',
-            [$groupid, $user->country]
-        )->countrymemberscount >= $instance->maxmemberspercountry) {
+    $countrymemberscount = $DB->get_record_sql(
+        <<<SQL
+            SELECT COUNT(*) countrymemberscount
+            FROM {customgroups_joins} j
+                JOIN {user} u ON j.userid = u.id
+            WHERE j.groupid = ?
+                AND u.country = ?
+        SQL,
+        [$groupid, $user->country]
+    )->countrymemberscount;
+    if ($instance->maxmemberspercountry && $countrymemberscount >= $instance->maxmemberspercountry) {
         return false;
     }
     return true;
@@ -239,7 +246,13 @@ function customgroups_isjoined($instanceid, $userid = 0) {
     global $DB, $USER;
     $userid = $userid ? $userid : $USER->id;
     return $DB->get_record_sql(
-        'SELECT COUNT(*) joinscount FROM {customgroups_joins} j JOIN {customgroups_groups} g ON j.groupid = g.id WHERE g.module = ? AND j.userid = ?',
+        <<<SQL
+            SELECT COUNT(*) joinscount
+            FROM {customgroups_joins} j
+                JOIN {customgroups_groups} g ON j.groupid = g.id
+            WHERE g.module = ?
+                AND j.userid = ?
+        SQL,
         [$instanceid, $userid]
     )->joinscount > 0;
 }
@@ -255,7 +268,13 @@ function customgroups_getjoinedgroupid($instanceid, $userid = 0) {
     global $DB, $USER;
     $userid = $userid ? $userid : $USER->id;
     $record = $DB->get_record_sql(
-        'SELECT j.groupid groupid FROM {customgroups_joins} j JOIN {customgroups_groups} g ON j.groupid = g.id WHERE g.module = ? AND j.userid = ?',
+        <<<SQL
+            SELECT j.groupid groupid
+            FROM {customgroups_joins} j
+                JOIN {customgroups_groups} g ON j.groupid = g.id
+            WHERE g.module = ?
+                AND j.userid = ?
+        SQL,
         [$instanceid, $userid]
     );
     return $record ? $record->groupid : null;
@@ -266,6 +285,7 @@ function customgroups_getjoinedgroupid($instanceid, $userid = 0) {
  * THIS METHOD DOES NOT CHECK MODULE CONDITIONS
  *
  * @param int $groupid
+ * @param int $userid
  * @return int
  */
 function customgroups_joingroup($groupid, $userid = 0) {
@@ -391,7 +411,13 @@ function customgroups_getmemberscountbycountry($groupid) {
     global $DB;
     $results = [];
     $joinedusers = $DB->get_records_sql(
-        'SELECT u.id, u.country FROM {customgroups_joins} j JOIN {user} u ON j.userid = u.id WHERE j.groupid = ? ORDER BY u.country ASC',
+        <<<SQL
+            SELECT u.id, u.country
+            FROM {customgroups_joins} j
+                JOIN {user} u ON j.userid = u.id
+            WHERE j.groupid = ?
+            ORDER BY u.country ASC
+        SQL,
         [$groupid]
     );
     foreach ($joinedusers as $joineduser) {
@@ -403,6 +429,13 @@ function customgroups_getmemberscountbycountry($groupid) {
     return $results;
 }
 
+/**
+ * Delete existing images
+ *
+ * @param \core\context\module $modulecontext
+ * @param int $groupid
+ * @return void
+ */
 function customgroups_deleteexistingimages(\core\context\module $modulecontext, $groupid) {
     $fs = get_file_storage();
     $fs->delete_area_files(
@@ -413,6 +446,13 @@ function customgroups_deleteexistingimages(\core\context\module $modulecontext, 
     );
 }
 
+/**
+ * Get image URL
+ *
+ * @param \core\context\module $modulecontext
+ * @param int $groupid
+ * @return \core\url|string
+ */
 function customgroups_getimageurl(\core\context\module $modulecontext, $groupid) {
     $fs = get_file_storage();
     $files = $fs->get_area_files(

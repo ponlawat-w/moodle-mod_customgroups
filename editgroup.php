@@ -22,8 +22,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
-require_once(__DIR__.'/lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
 $instance = optional_param('instance', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
@@ -38,8 +38,8 @@ if ($id) {
     $group = $DB->get_record('customgroups_groups', ['id' => $id], '*', MUST_EXIST);
     $instance = $group->module;
 }
-$moduleinstance = $DB->get_record('customgroups', array('id' => $instance), '*', MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
+$moduleinstance = $DB->get_record('customgroups', ['id' => $instance], '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $moduleinstance->course], '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $course->id, false, MUST_EXIST);
 
 require_login($course, true, $cm);
@@ -48,11 +48,13 @@ if (!customgroups_isactive($moduleinstance)) {
     throw new \core\exception\moodle_exception('Module is not active');
 }
 
-$modulecontext = \core\context\module::instance($cm->id);
 /** @var \context|false $modulecontext */
+$modulecontext = \core\context\module::instance($cm->id);
 require_capability('mod/customgroups:creategroup', $modulecontext);
 if (!$id && !customgroups_cancreategroup($modulecontext, $moduleinstance->id)) {
-    throw new \core\exception\moodle_exception('User does not have permission to create group or there is already a group created by this user in the module.');
+    throw new \core\exception\moodle_exception(
+        'User does not have permission to create group or there is already a group created by this user in the module.'
+    );
 }
 if ($id && $USER->id != $group->userid) {
     throw new \core\exception\moodle_exception('Cannot edit group because user is not group owner');
@@ -67,6 +69,7 @@ $redirecturl = new \core\url(
 );
 
 /** @var \core\context\module $modulecontext */
+$modulecontext;
 
 $form = null;
 if ($group && $action == 'remove') {
@@ -76,7 +79,7 @@ if ($group && $action == 'remove') {
         'message' => get_string('confirm_removegroup', 'mod_customgroups', $group->name),
         'instance' => $moduleinstance->id,
         'id' => $group->id,
-        'action' => 'remove'
+        'action' => 'remove',
     ]);
     if ($form->is_cancelled()) {
         redirect($redirecturl);
@@ -90,9 +93,7 @@ if ($group && $action == 'remove') {
     }
 } else {
     require_once(__DIR__ . '/classes/form/editgroup_form.php');
-    
     $titlestrkey = $group ? 'editgroup' : 'creategroup';
-    
     $customdata = ['instance' => $instance];
     if ($group) {
         $customdata['id'] = $group->id;
@@ -109,11 +110,11 @@ if ($group && $action == 'remove') {
             [
                 'subdirs' => 0,
                 'maxfiles' => 1,
-                'accepted_types' => ['image']
+                'accepted_types' => ['image'],
             ]
         );
     }
-    
+
     $form = new editgroup_form(null, $customdata);
     if ($form->is_cancelled()) {
         redirect($redirecturl);
@@ -154,7 +155,7 @@ if ($group && $action == 'remove') {
     }
 }
 
-$PAGE->set_url('/mod/customgroups/editgroup.php', array('id' => $moduleinstance->id));
+$PAGE->set_url('/mod/customgroups/editgroup.php', ['id' => $moduleinstance->id]);
 $PAGE->set_title(format_string($course->fullname) . ': ' . get_string($titlestrkey, 'mod_customgroups'));
 $PAGE->set_heading(get_string($titlestrkey, 'mod_customgroups'));
 $PAGE->set_context($modulecontext);

@@ -22,19 +22,20 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
-require_once(__DIR__.'/lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
 $instance = required_param('instance', PARAM_INT);
 
-$moduleinstance = $DB->get_record('customgroups', array('id' => $instance), '*', MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $moduleinstance->course), '*', MUST_EXIST);
+$moduleinstance = $DB->get_record('customgroups', ['id' => $instance], '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $moduleinstance->course], '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $course->id, false, MUST_EXIST);
 
 require_login($course, true, $cm);
 
 $modulecontext = \core\context\module::instance($cm->id);
 /** @var \context|false $modulecontext */
+$modulecontext;
 require_capability('mod/customgroups:applygroups', $modulecontext);
 
 if ($moduleinstance->applied) {
@@ -63,14 +64,18 @@ foreach ($groups as $group) {
 $message = \core\output\html_writer::tag('p', get_string('confirm_applygroups', 'mod_customgroups'));
 $message .= \core\output\html_writer::start_tag('ul');
 $message .= \core\output\html_writer::tag(
-    'li', 
+    'li',
     get_string('applyinggroupssummary', 'mod_customgroups', ['groups' => $totalgroupscount, 'members' => $totalmemberscount]),
     ['class' => 'text-primary']
 );
 if ($totalinaplicablegroupscount > 0) {
     $message .= \core\output\html_writer::tag(
         'li',
-        get_string('inaplicablegroupssummary', 'mod_customgroups', ['groups' => $totalinaplicablegroupscount, 'members' => $totalinaplicablememberscount]),
+        get_string(
+            'inaplicablegroupssummary',
+            'mod_customgroups',
+            ['groups' => $totalinaplicablegroupscount, 'members' => $totalinaplicablememberscount]
+        ),
         ['class' => 'text-danger']
     );
 }
@@ -80,7 +85,7 @@ require_once(__DIR__ . '/classes/form/confirm_form.php');
 $form = new confirm_form(null, [
     'title' => get_string('applygroups', 'mod_customgroups'),
     'message' => $message,
-    'instance' => $moduleinstance->id
+    'instance' => $moduleinstance->id,
 ]);
 if ($form->is_cancelled()) {
     redirect($redirecturl);
@@ -92,7 +97,7 @@ if ($form->is_submitted()) {
     exit;
 }
 
-$PAGE->set_url('/mod/customgroups/applygroups.php', array('id' => $moduleinstance->id));
+$PAGE->set_url('/mod/customgroups/applygroups.php', ['id' => $moduleinstance->id]);
 $PAGE->set_title(format_string($course->fullname) . ': ' . get_string('applygroups', 'mod_customgroups'));
 $PAGE->set_heading(get_string('applygroups', 'mod_customgroups'));
 $PAGE->set_context($modulecontext);

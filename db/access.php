@@ -57,5 +57,5 @@ $capabilities = [
         'archetypes' => [
             'student' => CAP_ALLOW,
         ],
-    ]
+    ],
 ];

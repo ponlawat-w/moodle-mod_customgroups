@@ -22,18 +22,17 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require(__DIR__.'/../../config.php');
-
-require_once(__DIR__.'/lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
 $id = required_param('id', PARAM_INT);
 
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 require_course_login($course);
 
 $coursecontext = context_course::instance($course->id);
 
-$PAGE->set_url('/mod/customgroups/index.php', array('id' => $id));
+$PAGE->set_url('/mod/customgroups/index.php', ['id' => $id]);
 $PAGE->set_title(format_string($course->fullname));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($coursecontext);
@@ -46,41 +45,49 @@ echo $OUTPUT->heading($modulenameplural);
 $customgroupss = get_all_instances_in_course('customgroups', $course);
 
 if (empty($customgroupss)) {
-    notice(get_string('no$customgroupsinstances', 'mod_customgroups'), new moodle_url('/course/view.php', array('id' => $course->id)));
+    notice(
+        get_string(
+            'no$customgroupsinstances',
+            'mod_customgroups'
+        ),
+        new \core\url('/course/view.php', ['id' => $course->id])
+    );
 }
 
-$table = new html_table();
+$table = new core_table\output\html_table();
 $table->attributes['class'] = 'generaltable mod_index';
 
 if ($course->format == 'weeks') {
-    $table->head  = array(get_string('week'), get_string('name'));
-    $table->align = array('center', 'left');
+    $table->head  = [get_string('week'), get_string('name')];
+    $table->align = ['center', 'left'];
 } else if ($course->format == 'topics') {
-    $table->head  = array(get_string('topic'), get_string('name'));
-    $table->align = array('center', 'left', 'left', 'left');
+    $table->head  = [get_string('topic'), get_string('name')];
+    $table->align = ['center', 'left', 'left', 'left'];
 } else {
-    $table->head  = array(get_string('name'));
-    $table->align = array('left', 'left', 'left');
+    $table->head  = [get_string('name')];
+    $table->align = ['left', 'left', 'left'];
 }
 
 foreach ($customgroupss as $customgroups) {
     if (!$customgroups->visible) {
-        $link = html_writer::link(
-            new moodle_url('/mod/customgroups/view.php', array('id' => $customgroups->coursemodule)),
+        $link = \core\output\html_writer::link(
+            new \core\url('/mod/customgroups/view.php', ['id' => $customgroups->coursemodule]),
             format_string($customgroups->name, true),
-            array('class' => 'dimmed'));
+            ['class' => 'dimmed']
+        );
     } else {
-        $link = html_writer::link(
-            new moodle_url('/mod/customgroups/view.php', array('id' => $customgroups->coursemodule)),
-            format_string($customgroups->name, true));
+        $link = \core\output\html_writer::link(
+            new \core\url('/mod/customgroups/view.php', ['id' => $customgroups->coursemodule]),
+            format_string($customgroups->name, true)
+        );
     }
 
-    if ($course->format == 'weeks' or $course->format == 'topics') {
-        $table->data[] = array($customgroups->section, $link);
+    if ($course->format == 'weeks' || $course->format == 'topics') {
+        $table->data[] = [$customgroups->section, $link];
     } else {
-        $table->data[] = array($link);
+        $table->data[] = [$link];
     }
 }
 
-echo html_writer::table($table);
+echo \core\output\html_writer::table($table);
 echo $OUTPUT->footer();
