@@ -1,8 +1,26 @@
 # Students\' Custom Group #
+This plugin allows course participants to name, create and/or join a group, and 
+also gain a link to the group invitation. It also allows teachers to set min/max 
+numbers of group members and, further, can limit the number from each country 
+participating.
 
-TODO Describe the plugin shortly here.
+Course managers and teachers may want participants/students to create their own 
+groups rather than have to assign them themselves. This plugin allows participants/students
+to easily either create a group or join one that has been created by another participant/student. 
+The manager/editing teacher clicks the “add an activity or resource” button when edit mode is on. 
+They choose the “Students’ custom group module”, and then add any information / restrictions 
+they wish to include. Once saved, the module becomes visible to participants. Participants 
+can then either click “create group” or click on the “join group” button next to those that 
+have been created. At this stage students can only be a part of one group. Once the group 
+creation period – set by the teacher – arrives, the teacher clicks “Apply groups to course” 
+and all the groups are created. The teacher can put all the groups into a single grouping 
+via the initial settings if required.
 
-TODO Provide more detailed description here.
+This plugin was originally made to enhance the group making functionality for the International 
+Virtual Exchange Project (IVEProject). In the IVEProject there are 3,000+ students from multiple 
+countries coming together to exchange messages and collaborate on tasks in a Moodle site. This 
+plugin solves the problem of enabling students to form smaller diverse groups for more personal 
+international exchange.
 
 ## Installing via uploaded ZIP file ##
 
