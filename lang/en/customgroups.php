@@ -73,6 +73,7 @@ $string['membersbycountry'] = 'Members by Country';
 $string['minmembers'] = 'Minimum members';
 $string['minmembers_help'] = 'Minimum number of members per group, 0 for unlimited. Groups that are not satisfied with this condition will not be created when module is applied to course.';
 $string['minmembersnotsatisfied'] = 'This group needs to have at least {$a} members to be valid.';
+$string['moduleinstancenotfound'] = 'Module instance not found';
 $string['modulename'] = 'Students\' Custom Groups Module';
 $string['modulenameplural'] = 'Students\' Custom Groups Modules';
 $string['nogrouping'] = 'No grouping';
