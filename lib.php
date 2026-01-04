@@ -159,7 +159,7 @@ function customgroups_isactive($instance) {
  */
 function customgroups_cancreategroup($modcontext, $instanceid, $userid = 0) {
     global $DB, $USER;
-    $user = $userid ? $DB->get_record('userid', ['id' => $userid], '*', MUST_EXIST) : $USER;
+    $user = $userid ? $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST) : $USER;
     if (!has_capability('mod/customgroups:creategroup', $modcontext, $user)) {
         return false;
     }
