@@ -30,7 +30,7 @@ $capabilities = [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
-            'user' => CAP_ALLOW
+            'user' => CAP_ALLOW,
         ],
     ],
     'mod/customgroups:addinstance' => [

@@ -60,7 +60,7 @@ $groups = $DB->get_records(
     'name ASC'
 );
 if ($groupid && !count($groups)) {
-    throw new \core\exception\moodle_exception('Group not found');
+    throw new \core\exception\moodle_exception('groupnotfound', 'mod_customgroups');
 }
 $joinedgroupid = customgroups_getjoinedgroupid($moduleinstance->id);
 $groupsdata = [];

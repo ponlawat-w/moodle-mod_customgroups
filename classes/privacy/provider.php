@@ -31,8 +31,8 @@ require_once(__DIR__ . '/../../lib.php');
  * Privacy provider
  */
 class provider implements
-    \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\request\plugin\provider {
     /**
      * Get metadata

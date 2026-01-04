@@ -364,7 +364,7 @@ function customgroups_applygroup($moduleinstance, $group) {
     $groupdata->name = $group->name;
     $newgroupid = groups_create_group($groupdata);
     if (!$newgroupid) {
-        throw new \core\exception\moodle_exception('Cannot create group: ' . $group->id . ' - ' . $group->name);
+        throw new \core\exception\moodle_exception('cannotcreategroup', 'mod_customgroups');
     }
     if ($moduleinstance->defaultgrouping) {
         groups_assign_grouping($moduleinstance->defaultgrouping, $newgroupid);
