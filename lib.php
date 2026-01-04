@@ -202,15 +202,19 @@ function customgroups_creategroupfromform($instance, $courseid, $data) {
  * Check if user can join group
  *
  * @param int $groupid
- * @param stdClass $instance
- * @param stdClass $user
+ * @param \stdClass $instance
+ * @param \context $modcontext
+ * @param \stdClass $user
  * @return bool
  */
-function customgroups_canjoingroup($groupid, $instance, $user = null) {
+function customgroups_canjoingroup($groupid, $instance, $modcontext, $user = null) {
     global $DB, $USER;
     $user = $user ? $user : $USER;
 
     if (!customgroups_isactive($instance)) {
+        return false;
+    }
+    if (!has_capability('mod/customgroups:joingroup', $modcontext, $user)) {
         return false;
     }
     if (customgroups_getjoinedgroupid($instance->id, $user->id)) {

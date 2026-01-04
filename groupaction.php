@@ -50,7 +50,7 @@ require_capability('mod/customgroups:joingroup', $modulecontext);
 $redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id], $group ? 'g-' . $group->id : null);
 
 if ($action == 'join') {
-    if (!customgroups_canjoingroup($group->id, $moduleinstance)) {
+    if (!customgroups_canjoingroup($group->id, $moduleinstance, $modulecontext)) {
         throw new \core\exception\moodle_exception('Cannot join group');
     }
     customgroups_joingroup($group->id);

@@ -47,6 +47,7 @@ $string['customgroups:addinstance'] = 'Add a Module Instance';
 $string['customgroups:applygroups'] = 'Apply Groups to Course';
 $string['customgroups:creategroup'] = 'Create a New Group';
 $string['customgroups:joingroup'] = 'Join a Group';
+$string['customgroups:view'] = 'View Module Instance';
 $string['defaultgrouping'] = 'Default Grouping';
 $string['defaultgrouping_help'] = 'After applying students\' created groups to the course, all the groups will be in the selected grouping.';
 $string['deletegroup'] = 'Delete group';

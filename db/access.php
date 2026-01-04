@@ -26,6 +26,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
+    'mod/customgroups:view' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'user' => CAP_ALLOW
+        ],
+    ],
     'mod/customgroups:addinstance' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

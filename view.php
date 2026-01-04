@@ -45,7 +45,9 @@ if ($id) {
 
 require_login($course, true, $cm);
 
+/** @var \context $modulecontext */
 $modulecontext = \core\context\module::instance($cm->id);
+require_capability('mod/customgroups:view', $modulecontext);
 
 $active = customgroups_isactive($moduleinstance);
 
@@ -113,13 +115,15 @@ foreach ($groups as $group) {
     if ($moduleinstance->minmembers && $joinscount < $moduleinstance->minmembers) {
         $warningtexts[] = ['text' => get_string('minmembersnotsatisfied', 'mod_customgroups', $moduleinstance->minmembers)];
     }
+    /** @var \core\context\module $modulecontext */
+    $modulecontext;
     $groupsdata[] = [
         'id' => $group->id,
         'name' => $group->name,
         'description' => $group->description,
         'joinscount' => $joinscount,
         'joined' => $group->id == $joinedgroupid,
-        'joinable' => customgroups_canjoingroup($group->id, $moduleinstance),
+        'joinable' => customgroups_canjoingroup($group->id, $moduleinstance, $modulecontext),
         'leaveable' => $active && ($joinedgroupid == $group->id && $group->userid != $USER->id),
         'editable' => $active && ($group->userid == $USER->id),
         'viewurl' => new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]),
