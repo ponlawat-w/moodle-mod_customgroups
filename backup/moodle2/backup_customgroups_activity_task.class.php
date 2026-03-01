@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,9 +17,9 @@
 /**
  * Defines backup_customgroups_activity_task class
  *
- * @package   mod_customgroups
- * @copyright 2025 Ponlawat Weerapanpisit <ponlawat_w@outlook.co.th>
- * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU GPL v3 or later
+ * @package    mod_customgroups
+ * @copyright  2026 Ponlawat Weerapanpisit <ponlawat_w@outlook.co.th>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
@@ -50,7 +49,7 @@ class backup_customgroups_activity_task extends backup_activity_task {
      * Code the transformations to perform in the activity in
      * order to get transportable (encoded) links
      */
-    static public function encode_content_links($content) {
+    public static function encode_content_links($content) {
         return $content;
     }
 }

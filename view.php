@@ -154,7 +154,6 @@ $data['creategroupurl'] = new \core\url('/mod/customgroups/editgroup.php', ['ins
 $data['applygroupsurl'] = new \core\url('/mod/customgroups/applygroups.php', ['instance' => $moduleinstance->id]);
 $data['groups'] = $groupsdata;
 $data['viewgroupurl'] = $moduleinstance->applied ? new \core\url('/group/index.php', ['id' => $course->id]) : null;
-$data['deletemoduleurl'] = $moduleinstance->applied ? new \core\url('/course/mod.php', ['delete' => $cm->id]) : null;
 
 $PAGE->set_url('/mod/customgroups/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($moduleinstance->name));

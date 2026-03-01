@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,18 +17,15 @@
 /**
  * Define all the backup steps that will be used by the backup_customgroups_activity_task
  *
- * @package   mod_customgroups
- * @copyright 2025 Ponlawat Weerapanpisit <ponlawat_w@outlook.co.th>
- * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU GPL v3 or later
+ * @package    mod_customgroups
+ * @copyright  2026 Ponlawat Weerapanpisit <ponlawat_w@outlook.co.th>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Defines the complete customgroups structure for backup
  */
 class backup_customgroups_activity_structure_step extends backup_activity_structure_step {
-
     /**
      * Defines the backup structure of the module
      *
@@ -69,7 +65,7 @@ class backup_customgroups_activity_structure_step extends backup_activity_struct
                 'description',
                 'descriptionformat',
                 'userid',
-                'timecreated'
+                'timecreated',
             ]
         );
 
@@ -80,7 +76,7 @@ class backup_customgroups_activity_structure_step extends backup_activity_struct
             ['id'],
             [
                 'userid',
-                'timejoined'
+                'timejoined',
             ]
         );
 

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,21 +17,15 @@
 /**
  * Define all the restore steps that will be used by the restore_customgroups_activity_task
  *
- * @package   mod_customgroups
- * @copyright 2023 Your Name
- * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU GPL v3 or later
+ * @package    mod_customgroups
+ * @copyright  2026 Ponlawat Weerapanpisit <ponlawat_w@outlook.co.th>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Structure step to restore one customgroups activity
- *
- * @copyright 2023 Your Name
- * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU GPL v3 or later
  */
 class restore_customgroups_activity_structure_step extends restore_activity_structure_step {
-
     /**
      * Defines structure of path elements to be processed during the restore
      *
@@ -40,7 +33,7 @@ class restore_customgroups_activity_structure_step extends restore_activity_stru
      */
     protected function define_structure() {
 
-        $paths = array();
+        $paths = [];
         $paths[] = new restore_path_element('customgroups', '/activity/customgroups');
         $paths[] = new restore_path_element('group', '/activity/customgroups/groups/group');
         $paths[] = new restore_path_element('join', '/activity/customgroups/groups/group/joins/join');

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -18,9 +17,9 @@
 /**
  * Defines restore_customgroups_activity_task class
  *
- * @package   mod_customgroups
- * @copyright 2023 Your Name
- * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU GPL v3 or later
+ * @package    mod_customgroups
+ * @copyright  2026 Ponlawat Weerapanpisit <ponlawat_w@outlook.co.th>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
@@ -30,12 +29,8 @@ require_once($CFG->dirroot . '/mod/customgroups/backup/moodle2/restore_customgro
 /**
  * customgroups restore task that provides all the settings and steps to perform one
  * complete restore of the activity
- *
- * @copyright 2023 Your Name
- * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU GPL v3 or later
  */
 class restore_customgroups_activity_task extends restore_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -47,7 +42,6 @@ class restore_customgroups_activity_task extends restore_activity_task {
      * Define (add) particular steps this activity can have
      */
     protected function define_my_steps() {
-        // customgroups only has one structure step.
         $this->add_step(new restore_customgroups_activity_structure_step('customgroups_structure', 'customgroups.xml'));
     }
 
@@ -55,7 +49,7 @@ class restore_customgroups_activity_task extends restore_activity_task {
      * Define the contents in the activity that must be
      * processed by the link decoder
      */
-    static public function define_decode_contents() {
+    public static function define_decode_contents() {
         return [];
     }
 
@@ -63,7 +57,7 @@ class restore_customgroups_activity_task extends restore_activity_task {
      * Define the decoding rules for links belonging
      * to the activity to be executed by the link decoder
      */
-    static public function define_decode_rules() {
+    public static function define_decode_rules() {
         return [];
     }
 
@@ -73,7 +67,7 @@ class restore_customgroups_activity_task extends restore_activity_task {
      * customgroups logs. It must return one array
      * of {@link restore_log_rule} objects
      */
-    static public function define_restore_log_rules() {
+    public static function define_restore_log_rules() {
         return [];
     }
 
@@ -86,7 +80,7 @@ class restore_customgroups_activity_task extends restore_activity_task {
      * Note this is only applied at course level. All activities
      * may define one array here.
      */
-    static public function define_restore_log_rules_for_course() {
+    public static function define_restore_log_rules_for_course() {
         return [];
     }
 }

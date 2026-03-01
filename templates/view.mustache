@@ -32,8 +32,7 @@
         "creategroupurl": "/",
         "applygroupsurl": "/",
         "groups": [],
-        "viewgroupurl": "/",
-        "deletemoduleurl": "/"
+        "viewgroupurl": "/"
     }
 }}
 {{#groupview}}
@@ -65,7 +64,6 @@
         {{#str}} applied, mod_customgroups {{/str}}
         {{#hasapplycap}}
             <a href="{{{viewgroupurl}}}" class="text-primary"><i class="fa fa-eye"></i> {{#str}} viewgroups, mod_customgroups {{/str}}</a>
-            <a href="{{{deletemoduleurl}}}" class="text-danger"><i class="fa fa-trash"></i> {{#str}} deletemodule, mod_customgroups {{/str}}</a>
         {{/hasapplycap}}
     </div>
 {{/applied}}

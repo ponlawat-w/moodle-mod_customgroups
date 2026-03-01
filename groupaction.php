@@ -53,14 +53,14 @@ if ($action == 'join') {
     if (!customgroups_canjoingroup($group->id, $moduleinstance, $modulecontext)) {
         throw new \core\exception\moodle_exception('cannotjoingroup', 'mod_customgroups');
     }
-    customgroups_joingroup($group->id);
+    customgroups_joingroup($group->id, $modulecontext);
     redirect($redirecturl);
     exit;
 } else if ($action == 'leave') {
     if (customgroups_getjoinedgroupid($moduleinstance->id) != $group->id) {
         throw new \core\exception\moodle_exception('usernotingroup', 'mod_customgroups');
     }
-    customgroups_leavegroup($group->id);
+    customgroups_leavegroup($group->id, $modulecontext);
     redirect($redirecturl);
     exit;
 } else {

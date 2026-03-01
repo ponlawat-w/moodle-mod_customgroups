@@ -121,7 +121,7 @@ if ($group && $action == 'remove') {
     if ($form->is_submitted() && $form->is_validated()) {
         $data = $form->get_data();
         if (!$data->id) {
-            if ($newid = customgroups_creategroupfromform($moduleinstance->id, $course->id, $data)) {
+            if ($newid = customgroups_creategroupfromform($moduleinstance->id, $course->id, $data, $modulecontext)) {
                 file_save_draft_area_files(
                     $data->image,
                     $modulecontext->id,
@@ -138,6 +138,7 @@ if ($group && $action == 'remove') {
         $group->description = $data->description['text'];
         $group->descriptionformat = $data->description['format'];
         if ($DB->update_record('customgroups_groups', $group)) {
+            \mod_customgroups\event\group_updated::createfromrecord($group, $modulecontext)->trigger();
             customgroups_deleteexistingimages($modulecontext, $group->id);
             file_save_draft_area_files(
                 $data->image,
