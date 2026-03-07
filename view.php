@@ -45,7 +45,9 @@ if ($id) {
 
 require_login($course, true, $cm);
 
+/** @var \context $modulecontext */
 $modulecontext = \core\context\module::instance($cm->id);
+require_capability('mod/customgroups:view', $modulecontext);
 
 $active = customgroups_isactive($moduleinstance);
 
@@ -58,7 +60,7 @@ $groups = $DB->get_records(
     'name ASC'
 );
 if ($groupid && !count($groups)) {
-    throw new \core\exception\moodle_exception('Group not found');
+    throw new \core\exception\moodle_exception('groupnotfound', 'mod_customgroups');
 }
 $joinedgroupid = customgroups_getjoinedgroupid($moduleinstance->id);
 $groupsdata = [];
@@ -113,13 +115,15 @@ foreach ($groups as $group) {
     if ($moduleinstance->minmembers && $joinscount < $moduleinstance->minmembers) {
         $warningtexts[] = ['text' => get_string('minmembersnotsatisfied', 'mod_customgroups', $moduleinstance->minmembers)];
     }
+    /** @var \core\context\module $modulecontext */
+    $modulecontext;
     $groupsdata[] = [
         'id' => $group->id,
         'name' => $group->name,
         'description' => $group->description,
         'joinscount' => $joinscount,
         'joined' => $group->id == $joinedgroupid,
-        'joinable' => customgroups_canjoingroup($group->id, $moduleinstance),
+        'joinable' => customgroups_canjoingroup($group->id, $moduleinstance, $modulecontext),
         'leaveable' => $active && ($joinedgroupid == $group->id && $group->userid != $USER->id),
         'editable' => $active && ($group->userid == $USER->id),
         'viewurl' => new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]),
@@ -150,7 +154,6 @@ $data['creategroupurl'] = new \core\url('/mod/customgroups/editgroup.php', ['ins
 $data['applygroupsurl'] = new \core\url('/mod/customgroups/applygroups.php', ['instance' => $moduleinstance->id]);
 $data['groups'] = $groupsdata;
 $data['viewgroupurl'] = $moduleinstance->applied ? new \core\url('/group/index.php', ['id' => $course->id]) : null;
-$data['deletemoduleurl'] = $moduleinstance->applied ? new \core\url('/course/mod.php', ['delete' => $cm->id]) : null;
 
 $PAGE->set_url('/mod/customgroups/view.php', ['id' => $cm->id]);
 $PAGE->set_title(format_string($moduleinstance->name));

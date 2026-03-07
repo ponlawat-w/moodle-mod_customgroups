@@ -47,7 +47,7 @@ $customgroupss = get_all_instances_in_course('customgroups', $course);
 if (empty($customgroupss)) {
     notice(
         get_string(
-            'no$customgroupsinstances',
+            'moduleinstancenotfound',
             'mod_customgroups'
         ),
         new \core\url('/course/view.php', ['id' => $course->id])

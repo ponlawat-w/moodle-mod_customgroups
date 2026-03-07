@@ -36,6 +36,8 @@ function customgroups_supports($feature) {
     switch ($feature) {
         case FEATURE_MOD_INTRO:
             return true;
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
         default:
             return null;
     }
@@ -159,7 +161,7 @@ function customgroups_isactive($instance) {
  */
 function customgroups_cancreategroup($modcontext, $instanceid, $userid = 0) {
     global $DB, $USER;
-    $user = $userid ? $DB->get_record('userid', ['id' => $userid], '*', MUST_EXIST) : $USER;
+    $user = $userid ? $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST) : $USER;
     if (!has_capability('mod/customgroups:creategroup', $modcontext, $user)) {
         return false;
     }
@@ -179,9 +181,10 @@ function customgroups_cancreategroup($modcontext, $instanceid, $userid = 0) {
  * @param int $instance
  * @param int $courseid
  * @param object $data
+ * @param \core\context\module $modcontext
  * @return int
  */
-function customgroups_creategroupfromform($instance, $courseid, $data) {
+function customgroups_creategroupfromform($instance, $courseid, $data, $modcontext) {
     global $DB, $USER;
 
     $group = new stdClass();
@@ -194,7 +197,8 @@ function customgroups_creategroupfromform($instance, $courseid, $data) {
     $group->timecreated = time();
 
     $id = $DB->insert_record('customgroups_groups', $group);
-    customgroups_joingroup($id);
+    \mod_customgroups\event\group_created::createfromid($id, $modcontext)->trigger();
+    customgroups_joingroup($id, $modcontext);
     return $id;
 }
 
@@ -202,15 +206,19 @@ function customgroups_creategroupfromform($instance, $courseid, $data) {
  * Check if user can join group
  *
  * @param int $groupid
- * @param stdClass $instance
- * @param stdClass $user
+ * @param \stdClass $instance
+ * @param \context $modcontext
+ * @param \stdClass $user
  * @return bool
  */
-function customgroups_canjoingroup($groupid, $instance, $user = null) {
+function customgroups_canjoingroup($groupid, $instance, $modcontext, $user = null) {
     global $DB, $USER;
     $user = $user ? $user : $USER;
 
     if (!customgroups_isactive($instance)) {
+        return false;
+    }
+    if (!has_capability('mod/customgroups:joingroup', $modcontext, $user)) {
         return false;
     }
     if (customgroups_getjoinedgroupid($instance->id, $user->id)) {
@@ -285,11 +293,14 @@ function customgroups_getjoinedgroupid($instanceid, $userid = 0) {
  * THIS METHOD DOES NOT CHECK MODULE CONDITIONS
  *
  * @param int $groupid
- * @param int $userid
+ * @param \core\context\module $modcontext
+ * @param int|null $userid
  * @return int
  */
-function customgroups_joingroup($groupid, $userid = 0) {
+function customgroups_joingroup($groupid, $modcontext, $userid = 0) {
     global $DB, $USER;
+    /** @var \moodle_database $DB */
+    $DB;
 
     $userid = $userid ? $userid : $USER->id;
 
@@ -298,22 +309,27 @@ function customgroups_joingroup($groupid, $userid = 0) {
     $record->userid = $userid;
     $record->timejoined = time();
 
-    return $DB->insert_record('customgroups_joins', $record);
+    $newid = $DB->insert_record('customgroups_joins', $record);
+    \mod_customgroups\event\group_joined::createfromrecord($record, $newid, $modcontext)->trigger();
+    return $newid;
 }
 
 /**
  * Leave user from a group
  *
  * @param int $groupid
- * @param int $userid
- * @return bool
+ * @param \core\context\module $modcontext
+ * @param int|null $userid
+ * @return void
  */
-function customgroups_leavegroup($groupid, $userid = 0) {
+function customgroups_leavegroup($groupid, $modcontext, $userid = 0) {
     global $DB, $USER;
 
     $userid = $userid ? $userid : $USER->id;
 
-    return $DB->delete_records('customgroups_joins', ['groupid' => $groupid, 'userid' => $userid]);
+    $event = \mod_customgroups\event\group_left::createfromid($groupid, $userid, $modcontext);
+    $DB->delete_records('customgroups_joins', ['groupid' => $groupid, 'userid' => $userid]);
+    $event->trigger();
 }
 
 /**
@@ -321,14 +337,14 @@ function customgroups_leavegroup($groupid, $userid = 0) {
  *
  * @param \core\context\module $modulecontext
  * @param int $groupid
+ * @return void
  */
 function customgroups_deletegroup($modulecontext, $groupid) {
     global $DB;
     customgroups_deleteexistingimages($modulecontext, $groupid);
-    if (!$DB->delete_records('customgroups_joins', ['groupid' => $groupid])) {
-        return false;
-    }
-    return $DB->delete_records('customgroups_groups', ['id' => $groupid]);
+    $DB->delete_records('customgroups_joins', ['groupid' => $groupid]);
+    $DB->delete_records('customgroups_groups', ['id' => $groupid]);
+    \mod_customgroups\event\group_deleted::createfromid($groupid, $modulecontext)->trigger();
 }
 
 /**
@@ -360,7 +376,7 @@ function customgroups_applygroup($moduleinstance, $group) {
     $groupdata->name = $group->name;
     $newgroupid = groups_create_group($groupdata);
     if (!$newgroupid) {
-        throw new \core\exception\moodle_exception('Cannot create group: ' . $group->id . ' - ' . $group->name);
+        throw new \core\exception\moodle_exception('cannotcreategroup', 'mod_customgroups');
     }
     if ($moduleinstance->defaultgrouping) {
         groups_assign_grouping($moduleinstance->defaultgrouping, $newgroupid);
@@ -399,6 +415,7 @@ function customgroups_applymodule($moduleinstance) {
     $moduleinstance->active = 0;
     $moduleinstance->applied = 1;
     $DB->update_record('customgroups', $moduleinstance);
+    \mod_customgroups\event\group_applied::createfrommoduleinstanceid($moduleinstance->id)->trigger();
 }
 
 /**
