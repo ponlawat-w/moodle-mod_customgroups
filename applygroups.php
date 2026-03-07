@@ -39,7 +39,7 @@ $modulecontext;
 require_capability('mod/customgroups:applygroups', $modulecontext);
 
 if ($moduleinstance->applied) {
-    throw new \core\exception\moodle_exception('Module already applied to course');
+    throw new \core\exception\moodle_exception('modulealreadyapplied', 'mod_customgroups');
 }
 
 $redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);

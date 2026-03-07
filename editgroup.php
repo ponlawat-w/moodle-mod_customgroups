@@ -30,7 +30,7 @@ $id = optional_param('id', 0, PARAM_INT);
 $action = optional_param('action', null, PARAM_TEXT);
 
 if (!$instance && !$id) {
-    throw new \core\exception\moodle_exception('Parameters error');
+    throw new \core\exception\moodle_exception('invalidparameters', 'mod_customgroups');
 }
 
 $group = null;
@@ -45,19 +45,17 @@ $cm = get_coursemodule_from_instance('customgroups', $moduleinstance->id, $cours
 require_login($course, true, $cm);
 
 if (!customgroups_isactive($moduleinstance)) {
-    throw new \core\exception\moodle_exception('Module is not active');
+    throw new \core\exception\moodle_exception('modulenotactive', 'mod_customgroups');
 }
 
 /** @var \context|false $modulecontext */
 $modulecontext = \core\context\module::instance($cm->id);
 require_capability('mod/customgroups:creategroup', $modulecontext);
 if (!$id && !customgroups_cancreategroup($modulecontext, $moduleinstance->id)) {
-    throw new \core\exception\moodle_exception(
-        'User does not have permission to create group or there is already a group created by this user in the module.'
-    );
+    throw new \core\exception\moodle_exception('nopermissiontocreategroup', 'mod_customgroups');
 }
 if ($id && $USER->id != $group->userid) {
-    throw new \core\exception\moodle_exception('Cannot edit group because user is not group owner');
+    throw new \core\exception\moodle_exception('notownercannotcreate', 'mod_customgroups');
 }
 
 $redirecturl = new \core\url(
@@ -123,7 +121,7 @@ if ($group && $action == 'remove') {
     if ($form->is_submitted() && $form->is_validated()) {
         $data = $form->get_data();
         if (!$data->id) {
-            if ($newid = customgroups_creategroupfromform($moduleinstance->id, $course->id, $data)) {
+            if ($newid = customgroups_creategroupfromform($moduleinstance->id, $course->id, $data, $modulecontext)) {
                 file_save_draft_area_files(
                     $data->image,
                     $modulecontext->id,
@@ -134,12 +132,13 @@ if ($group && $action == 'remove') {
                 redirect($redirecturl . '#g-' . $newid);
                 exit;
             }
-            throw new \core\exception\moodle_exception('Cannot create group');
+            throw new \core\exception\moodle_exception('cannotcreategroup', 'mod_customgroups');
         }
         $group->name = $data->name;
         $group->description = $data->description['text'];
         $group->descriptionformat = $data->description['format'];
         if ($DB->update_record('customgroups_groups', $group)) {
+            \mod_customgroups\event\group_updated::createfromrecord($group, $modulecontext)->trigger();
             customgroups_deleteexistingimages($modulecontext, $group->id);
             file_save_draft_area_files(
                 $data->image,
@@ -151,7 +150,7 @@ if ($group && $action == 'remove') {
             redirect($redirecturl);
             exit;
         }
-        throw new \core\exception\moodle_exception('Cannot edit group');
+        throw new \core\exception\moodle_exception('cannoteditgroup', 'mod_customgroups');
     }
 }
 
