@@ -48,8 +48,30 @@ class backup_customgroups_activity_task extends backup_activity_task {
     /**
      * Code the transformations to perform in the activity in
      * order to get transportable (encoded) links
+     * @param string $content
+     * @return string
      */
     public static function encode_content_links($content) {
+        global $CFG;
+
+        $base = preg_quote($CFG->wwwroot, '/');
+
+        $search = '/(' . $base . '\/mod\/customgroups\/view\.php\?id=(\d+)&amp;g=(\d+))/';
+        $content = preg_replace($search, '$@CUSTOMGROUPVIEWBYIDANDG*$2*$3@$', $content);
+        $search = '/(' . $base . '\/mod\/customgroups\/view\.php\?g=(\d+)&amp;id=(\d+))/';
+        $content = preg_replace($search, '$@CUSTOMGROUPVIEWBYIDANDG*$3*$2@$', $content);
+
+        $search = '/(' . $base . '\/mod\/customgroups\/view\.php\?instance=(\d+)&amp;g=(\d+))/';
+        $content = preg_replace($search, '$@CUSTOMGROUPVIEWBYINSTANCEANDG*$2*$3@$', $content);
+        $search = '/(' . $base . '\/mod\/customgroups\/view\.php\?g=(\d+)&amp;instance=(\d+))/';
+        $content = preg_replace($search, '$@CUSTOMGROUPVIEWBYINSTANCEANDG*$3*$2@$', $content);
+
+        $search = '/(' . $base . '\/mod\/customgroups\/view\.php\?id=(\d+))/';
+        $content = preg_replace($search, '$@CUSTOMGROUPVIEWBYID*$2@$', $content);
+
+        $search = '/(' . $base . '\/mod\/customgroups\/view\.php\?instance=(\d+))/';
+        $content = preg_replace($search, '$@CUSTOMGROUPVIEWBYINSTANCE*$2@$', $content);
+
         return $content;
     }
 }

@@ -48,17 +48,42 @@ class restore_customgroups_activity_task extends restore_activity_task {
     /**
      * Define the contents in the activity that must be
      * processed by the link decoder
+     * @return restore_decode_content[]
      */
     public static function define_decode_contents() {
-        return [];
+        return [
+            new restore_decode_content('customgroups_groups', ['description'], 'group'),
+        ];
     }
 
     /**
      * Define the decoding rules for links belonging
      * to the activity to be executed by the link decoder
+     * @return restore_decode_rule[]
      */
     public static function define_decode_rules() {
-        return [];
+        return [
+            new restore_decode_rule(
+                'CUSTOMGROUPVIEWBYID',
+                '/mod/customgroups/view.php?id=$1',
+                ['course_module']
+            ),
+            new restore_decode_rule(
+                'CUSTOMGROUPVIEWBYINSTANCE',
+                '/mod/customgroups/view.php?instance=$1',
+                ['customgroups']
+            ),
+            new restore_decode_rule(
+                'CUSTOMGROUPVIEWBYIDANDG',
+                '/mod/customgroups/view.php?id=$1&g=$2',
+                ['course_module', 'group']
+            ),
+            new restore_decode_rule(
+                'CUSTOMGROUPVIEWBYINSTANCEANDG',
+                '/mod/customgroups/view.php?instance=$1&g=$2',
+                ['customgroups', 'group']
+            ),
+        ];
     }
 
     /**
@@ -66,6 +91,7 @@ class restore_customgroups_activity_task extends restore_activity_task {
      * by the {@link restore_logs_processor} when restoring
      * customgroups logs. It must return one array
      * of {@link restore_log_rule} objects
+     * @return array
      */
     public static function define_restore_log_rules() {
         return [];
@@ -79,6 +105,7 @@ class restore_customgroups_activity_task extends restore_activity_task {
      *
      * Note this is only applied at course level. All activities
      * may define one array here.
+     * @return array
      */
     public static function define_restore_log_rules_for_course() {
         return [];

@@ -29,7 +29,7 @@ class restore_customgroups_activity_structure_step extends restore_activity_stru
     /**
      * Defines structure of path elements to be processed during the restore
      *
-     * @return array of {@link restore_path_element}
+     * @return restore_path_element[]
      */
     protected function define_structure() {
 
