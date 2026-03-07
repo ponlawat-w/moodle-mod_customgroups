@@ -54,7 +54,7 @@ class group_deleted extends \core\event\base {
     /**
      * Create event instance from ID
      *
-     * @param integer $id
+     * @param int $id
      * @param \core\context\module $modcontext
      * @return \mod_customgroups\event\group_deleted
      */
