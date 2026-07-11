@@ -22,15 +22,12 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
-
-require_once($CFG->dirroot . '/mod/forum/lib.php');
-require_once($CFG->libdir . '/formslib.php');
+namespace mod_customgroups\form;
 
 /**
  * Confirmation form
  */
-class confirm_form extends moodleform {
+class confirm_form extends \moodleform {
     /**
      * Form definition
      */

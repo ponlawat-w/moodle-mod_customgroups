@@ -24,6 +24,7 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 $instance = required_param('instance', PARAM_INT);
 
@@ -81,8 +82,7 @@ if ($totalinaplicablegroupscount > 0) {
 }
 $message .= \core\output\html_writer::end_tag('li');
 
-require_once(__DIR__ . '/classes/form/confirm_form.php');
-$form = new confirm_form(null, [
+$form = new \mod_customgroups\form\confirm_form(null, [
     'title' => get_string('applygroups', 'mod_customgroups'),
     'message' => $message,
     'instance' => $moduleinstance->id,
