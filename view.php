@@ -49,6 +49,15 @@ require_login($course, true, $cm);
 $modulecontext = \core\context\module::instance($cm->id);
 require_capability('mod/customgroups:view', $modulecontext);
 
+$event = \mod_customgroups\event\course_module_viewed::create([
+    'context' => $modulecontext,
+    'objectid' => $moduleinstance->id,
+]);
+$event->add_record_snapshot('course_modules', $cm);
+$event->add_record_snapshot('course', $course);
+$event->add_record_snapshot('customgroups', $moduleinstance);
+$event->trigger();
+
 $active = customgroups_isactive($moduleinstance);
 
 $groups = $DB->get_records(
