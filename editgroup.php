@@ -24,6 +24,7 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 $instance = optional_param('instance', 0, PARAM_INT);
 $id = optional_param('id', 0, PARAM_INT);
@@ -71,9 +72,8 @@ $modulecontext;
 
 $form = null;
 if ($group && $action == 'remove') {
-    require_once(__DIR__ . '/classes/form/confirm_form.php');
     $titlestrkey = 'deletegroup';
-    $form = new confirm_form(null, [
+    $form = new \mod_customgroups\form\confirm_form(null, [
         'message' => get_string('confirm_removegroup', 'mod_customgroups', $group->name),
         'instance' => $moduleinstance->id,
         'id' => $group->id,
@@ -90,7 +90,6 @@ if ($group && $action == 'remove') {
         exit;
     }
 } else {
-    require_once(__DIR__ . '/classes/form/editgroup_form.php');
     $titlestrkey = $group ? 'editgroup' : 'creategroup';
     $customdata = ['instance' => $instance];
     if ($group) {
@@ -113,7 +112,7 @@ if ($group && $action == 'remove') {
         );
     }
 
-    $form = new editgroup_form(null, $customdata);
+    $form = new \mod_customgroups\form\editgroup_form(null, $customdata);
     if ($form->is_cancelled()) {
         redirect($redirecturl);
         exit;
