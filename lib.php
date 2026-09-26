@@ -118,27 +118,34 @@ function customgroups_update_instance($moduleinstance) {
 function customgroups_delete_instance($id) {
     global $DB;
 
-    $exists = $DB->get_record('customgroups', ['id' => $id]);
-    if (!$exists) {
-        return false;
+    // Already deleted (e.g. a retried deletion task), nothing left to remove.
+    if (!$DB->record_exists('customgroups', ['id' => $id])) {
+        return true;
     }
 
-    $coursemodule = get_coursemodule_from_instance('customgroups', $id);
+    $coursemodule = get_coursemodule_from_instance('customgroups', $id, 0, false, MUST_EXIST);
     $modulecontext = \core\context\module::instance($coursemodule->id);
+    customgroups_deleteallgroups($modulecontext, $id);
+
     $fs = get_file_storage();
     $fs->delete_area_files($modulecontext->id, 'mod_customgroups');
 
-    $groups = $DB->get_records('customgroups_groups', ['module' => $id]);
-    foreach ($groups as $group) {
-        if (!customgroups_deletegroup($modulecontext, $group->id)) {
-            return false;
-        }
-    }
-    if (!$DB->delete_records('customgroups', ['id' => $id])) {
-        return false;
-    }
+    return $DB->delete_records('customgroups', ['id' => $id]);
+}
 
-    return true;
+/**
+ * Delete all custom groups, including their members and images, in a module instance
+ *
+ * @param \core\context\module $modulecontext
+ * @param int $instanceid
+ * @return void
+ */
+function customgroups_deleteallgroups(\core\context\module $modulecontext, $instanceid) {
+    global $DB;
+    $groups = $DB->get_records('customgroups_groups', ['module' => $instanceid], '', 'id');
+    foreach ($groups as $group) {
+        customgroups_deletegroup($modulecontext, $group->id);
+    }
 }
 
 /**
