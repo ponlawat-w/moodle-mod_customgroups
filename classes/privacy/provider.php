@@ -224,7 +224,8 @@ class provider implements
             if (!$coursemodule) {
                 return;
             }
-            return customgroups_delete_instance($coursemodule->instance);
+            customgroups_deleteallgroups($context, $coursemodule->instance);
+            return;
         }
 
         if ($context->contextlevel != CONTEXT_COURSE) {
@@ -232,7 +233,7 @@ class provider implements
         }
         $coursemodules = get_coursemodules_in_course('customgroups', $context->instanceid);
         foreach ($coursemodules as $coursemodule) {
-            customgroups_delete_instance($coursemodule->instance);
+            customgroups_deleteallgroups(\core\context\module::instance($coursemodule->id), $coursemodule->instance);
         }
     }
 

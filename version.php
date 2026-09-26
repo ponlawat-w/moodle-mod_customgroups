@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_customgroups';
-$plugin->release = '1.1.1';
+$plugin->release = '1.1.2';
 $plugin->version = 2026071100;
 $plugin->requires = 2025041400;
 $plugin->maturity = MATURITY_STABLE;
