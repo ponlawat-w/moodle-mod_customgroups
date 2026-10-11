@@ -47,7 +47,7 @@ if (!customgroups_isactive($moduleinstance)) {
 $modulecontext = \core\context\module::instance($cm->id);
 require_capability('mod/customgroups:joingroup', $modulecontext);
 
-$redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id], $group ? 'g-' . $group->id : null);
+$redirecturl = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]);
 
 if ($action == 'join') {
     if (!customgroups_canjoingroup($group->id, $moduleinstance, $modulecontext)) {

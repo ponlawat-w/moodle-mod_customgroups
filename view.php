@@ -33,6 +33,10 @@ $instance = optional_param('instance', 0, PARAM_INT);
 
 $groupid = optional_param('g', null, PARAM_INT);
 
+// Groups list pagination.
+$page = optional_param('page', 0, PARAM_INT);
+$perpage = max(1, optional_param('perpage', 20, PARAM_INT));
+
 if ($id) {
     $cm = get_coursemodule_from_id('customgroups', $id, 0, false, MUST_EXIST);
     $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
@@ -60,20 +64,111 @@ $event->trigger();
 
 $active = customgroups_isactive($moduleinstance);
 
-$groups = $DB->get_records(
-    'customgroups_groups',
-    array_merge(
-        ['module' => $moduleinstance->id],
-        is_null($groupid) ? [] : ['id' => $groupid]
-    ),
-    'name ASC'
-);
-if ($groupid && !count($groups)) {
-    throw new \core\exception\moodle_exception('groupnotfound', 'mod_customgroups');
-}
-$joinedgroupid = customgroups_getjoinedgroupid($moduleinstance->id);
-$groupsdata = [];
-foreach ($groups as $group) {
+$PAGE->set_url('/mod/customgroups/view.php', array_merge(
+    ['id' => $cm->id],
+    is_null($groupid) ? [] : ['g' => $groupid],
+    $page ? ['page' => $page] : []
+));
+$PAGE->set_title(format_string($moduleinstance->name));
+$PAGE->set_heading(format_string($course->fullname));
+$PAGE->set_context($modulecontext);
+
+$data = [];
+$data['active'] = $active;
+$data['groupview'] = !is_null($groupid);
+$data['actionurl'] = new \core\url('/mod/customgroups/groupaction.php');
+$data['groupurl'] = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);
+$data['applied'] = $moduleinstance->applied;
+$data['minmembers'] = $moduleinstance->minmembers;
+$data['maxmembers'] = $moduleinstance->maxmembers;
+$data['maxmemberspercountry'] = $moduleinstance->maxmemberspercountry;
+$data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
+/** @var \context|false $modulecontext */
+$modulecontext;
+$data['hasapplycap'] = $modulecontext ? has_capability('mod/customgroups:applygroups', $modulecontext) : false;
+$data['canapplygroups'] = !$moduleinstance->applied && $data['hasapplycap'];
+$data['creategroupurl'] = new \core\url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
+$data['applygroupsurl'] = new \core\url('/mod/customgroups/applygroups.php', ['instance' => $moduleinstance->id]);
+$data['viewgroupurl'] = $moduleinstance->applied ? new \core\url('/group/index.php', ['id' => $course->id]) : null;
+
+if (is_null($groupid)) {
+    $totalcount = $DB->count_records('customgroups_groups', ['module' => $moduleinstance->id]);
+    $joinedgroupid = customgroups_getjoinedgroupid($moduleinstance->id);
+    $canjoin = $active && has_capability('mod/customgroups:joingroup', $modulecontext);
+    $params = ['module' => $moduleinstance->id];
+    $countryjoinsql = '';
+    $countrycountsql = '0';
+    if ($moduleinstance->maxmemberspercountry) {
+        $countryjoinsql = 'LEFT JOIN {user} u ON j.userid = u.id AND u.country = :country';
+        $countrycountsql = 'COUNT(u.id)';
+        $params['country'] = $USER->country;
+    }
+    // Joined group comes first; otherwise joinable groups come first, under the same conditions as customgroups_canjoingroup.
+    $sortgroupsql = '0';
+    if ($joinedgroupid) {
+        $sortgroupsql = 'CASE WHEN g.id = :joinedgroupid THEN 0 ELSE 1 END';
+        $params['joinedgroupid'] = $joinedgroupid;
+    } else if ($canjoin) {
+        $joinableconditions = [];
+        if ($moduleinstance->maxmembers) {
+            $joinableconditions[] = 'COUNT(j.id) < :maxmembers';
+            $params['maxmembers'] = $moduleinstance->maxmembers;
+        }
+        if ($moduleinstance->maxmemberspercountry) {
+            $joinableconditions[] = "{$countrycountsql} < :maxmemberspercountry";
+            $params['maxmemberspercountry'] = $moduleinstance->maxmemberspercountry;
+        }
+        if ($joinableconditions) {
+            $sortgroupsql = 'CASE WHEN ' . implode(' AND ', $joinableconditions) . ' THEN 0 ELSE 1 END';
+        }
+    }
+    $groups = $DB->get_records_sql(
+        <<<SQL
+            SELECT g.id, g.name, COUNT(j.id) joinscount, {$countrycountsql} countrycount
+            FROM {customgroups_groups} g
+                LEFT JOIN {customgroups_joins} j ON j.groupid = g.id
+                {$countryjoinsql}
+            WHERE g.module = :module
+            GROUP BY g.id, g.name
+            ORDER BY {$sortgroupsql}, COUNT(j.id) ASC, g.name ASC, g.id ASC
+        SQL,
+        $params,
+        $page * $perpage,
+        $perpage
+    );
+    /** @var \core\context\module $modulecontext */
+    $modulecontext;
+    $imageurls = customgroups_getimageurls($modulecontext, array_keys($groups));
+    $data['groups'] = [];
+    foreach ($groups as $group) {
+        $data['groups'][] = [
+            'name' => $group->name,
+            'viewurl' => new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]),
+            'image' => $imageurls[$group->id] ?? null,
+            'status' => customgroups_getgroupstatus(
+                $group->id,
+                $moduleinstance,
+                $canjoin,
+                $joinedgroupid,
+                $group->joinscount,
+                $group->countrycount
+            ),
+            'details' => customgroups_getgroupdetails($moduleinstance, $joinedgroupid, $group->joinscount, $group->countrycount),
+        ];
+    }
+    $data['hasgroups'] = $totalcount > 0;
+    $data['pagingbar'] = $OUTPUT->paging_bar(
+        $totalcount,
+        $page,
+        $perpage,
+        new \core\url('/mod/customgroups/view.php', ['id' => $cm->id, 'perpage' => $perpage])
+    );
+} else {
+    $group = $DB->get_record('customgroups_groups', ['id' => $groupid, 'module' => $moduleinstance->id]);
+    if (!$group) {
+        throw new \core\exception\moodle_exception('groupnotfound', 'mod_customgroups');
+    }
+    $joinedgroupid = customgroups_getjoinedgroupid($moduleinstance->id);
     $joins = $DB->get_records('customgroups_joins', ['groupid' => $group->id]);
     $users = [];
     foreach ($joins as $join) {
@@ -91,7 +186,7 @@ foreach ($groups as $group) {
         $countpercountries = customgroups_getmemberscountbycountry($group->id);
         foreach ($countpercountries as $country => $count) {
             $countries[] = [
-                'name' => get_string($country, 'countries'),
+                'name' => customgroups_getcountryname($country),
                 'count' => $count,
                 'class' => $country == $USER->country && $count >= $moduleinstance->maxmemberspercountry ? 'text-danger' : '',
             ];
@@ -114,7 +209,7 @@ foreach ($groups as $group) {
                     'cannotjoin_groupreachedmaxmemberspercountry',
                     'mod_customgroups',
                     [
-                        'country' => get_string($USER->country, 'countries'),
+                        'country' => customgroups_getcountryname($USER->country),
                         'maxmembers' => $moduleinstance->maxmemberspercountry,
                     ]
                 ),
@@ -126,48 +221,25 @@ foreach ($groups as $group) {
     }
     /** @var \core\context\module $modulecontext */
     $modulecontext;
-    $groupsdata[] = [
+    $data['group'] = [
         'id' => $group->id,
         'name' => $group->name,
-        'description' => $group->description,
+        'description' => format_text($group->description, $group->descriptionformat, ['context' => $modulecontext]),
         'joinscount' => $joinscount,
         'joined' => $group->id == $joinedgroupid,
         'joinable' => customgroups_canjoingroup($group->id, $moduleinstance, $modulecontext),
         'leaveable' => $active && ($joinedgroupid == $group->id && $group->userid != $USER->id),
         'editable' => $active && ($group->userid == $USER->id),
-        'viewurl' => new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]),
         'editurl' => new \core\url('/mod/customgroups/editgroup.php', ['id' => $group->id]),
         'removeurl' => new \core\url('/mod/customgroups/editgroup.php', ['action' => 'remove', 'id' => $group->id]),
+        'shareurl' => new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]),
         'image' => customgroups_getimageurl($modulecontext, $group->id),
         'users' => $users,
         'countries' => $countries,
         'warningtexts' => $warningtexts,
     ];
+    $PAGE->requires->js_call_amd('mod_customgroups/share', 'init');
 }
-
-$data = [];
-$data['active'] = $active;
-$data['groupview'] = !is_null($groupid);
-$data['actionurl'] = new \core\url('/mod/customgroups/groupaction.php');
-$data['groupurl'] = new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id]);
-$data['applied'] = $moduleinstance->applied;
-$data['minmembers'] = $moduleinstance->minmembers;
-$data['maxmembers'] = $moduleinstance->maxmembers;
-$data['maxmemberspercountry'] = $moduleinstance->maxmemberspercountry;
-$data['cancreategroup'] = customgroups_cancreategroup($modulecontext, $moduleinstance->id);
-/** @var \context|false $modulecontext */
-$modulecontext;
-$data['hasapplycap'] = $modulecontext ? has_capability('mod/customgroups:applygroups', $modulecontext) : false;
-$data['canapplygroups'] = !$moduleinstance->applied && $data['hasapplycap'];
-$data['creategroupurl'] = new \core\url('/mod/customgroups/editgroup.php', ['instance' => $moduleinstance->id]);
-$data['applygroupsurl'] = new \core\url('/mod/customgroups/applygroups.php', ['instance' => $moduleinstance->id]);
-$data['groups'] = $groupsdata;
-$data['viewgroupurl'] = $moduleinstance->applied ? new \core\url('/group/index.php', ['id' => $course->id]) : null;
-
-$PAGE->set_url('/mod/customgroups/view.php', ['id' => $cm->id]);
-$PAGE->set_title(format_string($moduleinstance->name));
-$PAGE->set_heading(format_string($course->fullname));
-$PAGE->set_context($modulecontext);
 
 echo $OUTPUT->header();
 
