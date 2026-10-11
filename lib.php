@@ -332,7 +332,7 @@ function customgroups_getgroupdetails($instance, $joinedgroupid, $joinscount, $c
         $details[] = [
             'text' => get_string('detail_fromcountry', 'mod_customgroups', [
                 'count' => $countrycount,
-                'country' => get_string($USER->country, 'countries'),
+                'country' => customgroups_getcountryname($USER->country),
             ]),
             'class' => $countrycount >= $instance->maxmemberspercountry ? 'text-danger' : 'text-muted',
         ];
@@ -519,6 +519,16 @@ function customgroups_applymodule($moduleinstance) {
     $moduleinstance->applied = 1;
     $DB->update_record('customgroups', $moduleinstance);
     \mod_customgroups\event\group_applied::createfrommoduleinstanceid($moduleinstance->id)->trigger();
+}
+
+/**
+ * Get country name from country code, falls back to a string for no country when code is empty
+ *
+ * @param string|null $country
+ * @return string
+ */
+function customgroups_getcountryname($country) {
+    return $country ? get_string($country, 'countries') : get_string('nocountry', 'mod_customgroups');
 }
 
 /**

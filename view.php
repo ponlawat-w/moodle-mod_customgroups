@@ -186,7 +186,7 @@ if (is_null($groupid)) {
         $countpercountries = customgroups_getmemberscountbycountry($group->id);
         foreach ($countpercountries as $country => $count) {
             $countries[] = [
-                'name' => get_string($country, 'countries'),
+                'name' => customgroups_getcountryname($country),
                 'count' => $count,
                 'class' => $country == $USER->country && $count >= $moduleinstance->maxmemberspercountry ? 'text-danger' : '',
             ];
@@ -209,7 +209,7 @@ if (is_null($groupid)) {
                     'cannotjoin_groupreachedmaxmemberspercountry',
                     'mod_customgroups',
                     [
-                        'country' => get_string($USER->country, 'countries'),
+                        'country' => customgroups_getcountryname($USER->country),
                         'maxmembers' => $moduleinstance->maxmemberspercountry,
                     ]
                 ),
@@ -232,11 +232,13 @@ if (is_null($groupid)) {
         'editable' => $active && ($group->userid == $USER->id),
         'editurl' => new \core\url('/mod/customgroups/editgroup.php', ['id' => $group->id]),
         'removeurl' => new \core\url('/mod/customgroups/editgroup.php', ['action' => 'remove', 'id' => $group->id]),
+        'shareurl' => new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $group->id]),
         'image' => customgroups_getimageurl($modulecontext, $group->id),
         'users' => $users,
         'countries' => $countries,
         'warningtexts' => $warningtexts,
     ];
+    $PAGE->requires->js_call_amd('mod_customgroups/share', 'init');
 }
 
 echo $OUTPUT->header();
