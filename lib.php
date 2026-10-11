@@ -26,6 +26,9 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../../group/lib.php');
 
+/** Ratio of members to capacity from which a group is considered nearly full */
+define('CUSTOMGROUPS_NEARLYFULL_RATIO', 0.75);
+
 /**
  * Return if the plugin supports $feature.
  *
@@ -231,7 +234,8 @@ function customgroups_canjoingroup($groupid, $instance, $modcontext, $user = nul
     if (customgroups_getjoinedgroupid($instance->id, $user->id)) {
         return false;
     }
-    if ($instance->maxmembers && $DB->count_records('customgroups_joins', ['groupid' => $groupid]) >= $instance->maxmembers) {
+    $joinscount = $DB->count_records('customgroups_joins', ['groupid' => $groupid]);
+    if ($instance->maxmembers && $joinscount >= $instance->maxmembers) {
         return false;
     }
     $countrymemberscount = $DB->get_record_sql(
@@ -244,10 +248,102 @@ function customgroups_canjoingroup($groupid, $instance, $modcontext, $user = nul
         SQL,
         [$groupid, $user->country]
     )->countrymemberscount;
-    if ($instance->maxmemberspercountry && $countrymemberscount >= $instance->maxmemberspercountry) {
-        return false;
+    return !customgroups_islimitreached($instance, $joinscount, $countrymemberscount);
+}
+
+/**
+ * True if a group has reached member limit, either total or by country of the user
+ *
+ * @param \stdClass $instance
+ * @param int $joinscount Number of members in the group
+ * @param int $countrycount Number of members in the group from the user's country
+ * @return bool
+ */
+function customgroups_islimitreached($instance, $joinscount, $countrycount) {
+    return ($instance->maxmembers && $joinscount >= $instance->maxmembers)
+        || ($instance->maxmemberspercountry && $countrycount >= $instance->maxmemberspercountry);
+}
+
+/**
+ * Get status badge of a group for the current user in groups list
+ *
+ * @param int $groupid
+ * @param \stdClass $instance
+ * @param bool $canjoin True if the instance is active and the current user has capability to join groups
+ * @param int|null $joinedgroupid Group ID the current user has joined in the instance
+ * @param int $joinscount Number of members in the group
+ * @param int $countrycount Number of members in the group from the current user's country
+ * @return array|null with keys text and class, or null if there is no status
+ */
+function customgroups_getgroupstatus($groupid, $instance, $canjoin, $joinedgroupid, $joinscount, $countrycount) {
+    global $USER;
+
+    if ($joinedgroupid) {
+        return $groupid == $joinedgroupid
+            ? ['text' => get_string('status_joined', 'mod_customgroups'), 'class' => 'text-bg-primary']
+            : null;
     }
-    return true;
+    if (
+        ($instance->maxmemberspercountry && $USER->country && $countrycount >= $instance->maxmemberspercountry)
+        || ($instance->maxmembers && $joinscount >= $instance->maxmembers)
+    ) {
+        return ['text' => get_string('status_full', 'mod_customgroups'), 'class' => 'text-bg-danger'];
+    }
+    if ($instance->maxmembers && $joinscount >= $instance->maxmembers * CUSTOMGROUPS_NEARLYFULL_RATIO) {
+        $remaining = $instance->maxmembers - $joinscount;
+        if ($instance->maxmemberspercountry && $USER->country) {
+            $remaining = min($remaining, $instance->maxmemberspercountry - $countrycount);
+        }
+        return [
+            'text' => get_string('status_remaining', 'mod_customgroups', $remaining),
+            'class' => 'text-bg-warning',
+        ];
+    }
+    if ($canjoin && !customgroups_islimitreached($instance, $joinscount, $countrycount)) {
+        return ['text' => get_string('status_available', 'mod_customgroups'), 'class' => 'text-bg-success'];
+    }
+    return null;
+}
+
+/**
+ * Get detail texts of a group for the current user in groups list
+ * Texts are highlighted only when the current user has not joined any group in the instance
+ *
+ * @param \stdClass $instance
+ * @param int|null $joinedgroupid Group ID the current user has joined in the instance
+ * @param int $joinscount Number of members in the group
+ * @param int $countrycount Number of members in the group from the current user's country
+ * @return array of arrays with keys text, class and first
+ */
+function customgroups_getgroupdetails($instance, $joinedgroupid, $joinscount, $countrycount) {
+    global $USER;
+
+    $details = [[
+        'text' => get_string($joinscount == 1 ? 'detail_member' : 'detail_members', 'mod_customgroups', $joinscount),
+        'class' => 'text-muted',
+    ]];
+    if ($instance->minmembers && $joinscount < $instance->minmembers) {
+        $details[] = [
+            'text' => get_string('detail_needed', 'mod_customgroups', $instance->minmembers - $joinscount),
+            'class' => 'text-warning',
+        ];
+    }
+    if ($instance->maxmemberspercountry && $USER->country) {
+        $details[] = [
+            'text' => get_string('detail_fromcountry', 'mod_customgroups', [
+                'count' => $countrycount,
+                'country' => get_string($USER->country, 'countries'),
+            ]),
+            'class' => $countrycount >= $instance->maxmemberspercountry ? 'text-danger' : 'text-muted',
+        ];
+    }
+    foreach ($details as $i => $detail) {
+        $details[$i]['first'] = $i == 0;
+        if ($joinedgroupid) {
+            $details[$i]['class'] = 'text-muted';
+        }
+    }
+    return $details;
 }
 
 /**
@@ -475,30 +571,47 @@ function customgroups_deleteexistingimages(\core\context\module $modulecontext, 
  *
  * @param \core\context\module $modulecontext
  * @param int $groupid
- * @return \core\url|string
+ * @return \core\url|null
  */
 function customgroups_getimageurl(\core\context\module $modulecontext, $groupid) {
+    return customgroups_getimageurls($modulecontext, [$groupid])[$groupid] ?? null;
+}
+
+/**
+ * Get image URLs of multiple groups
+ *
+ * @param \core\context\module $modulecontext
+ * @param int[] $groupids
+ * @return \core\url[] with key being group ID, groups without image are omitted
+ */
+function customgroups_getimageurls(\core\context\module $modulecontext, array $groupids) {
+    if (!$groupids) {
+        return [];
+    }
     $fs = get_file_storage();
     $files = $fs->get_area_files(
         $modulecontext->id,
         'mod_customgroups',
         'groupimages',
-        $groupid
+        $groupids,
+        'itemid, filepath, filename',
+        false
     );
+    $results = [];
     foreach ($files as $file) {
-        if ($file->get_filename() == '.') {
+        if (isset($results[$file->get_itemid()])) {
             continue;
         }
-        return \core\url::make_pluginfile_url(
+        $results[$file->get_itemid()] = \core\url::make_pluginfile_url(
             $modulecontext->id,
             'mod_customgroups',
             'groupimages',
-            $groupid,
+            $file->get_itemid(),
             $file->get_filepath(),
             $file->get_filename()
         );
     }
-    return null;
+    return $results;
 }
 
 /**

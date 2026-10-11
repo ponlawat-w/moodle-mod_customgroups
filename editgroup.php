@@ -128,7 +128,7 @@ if ($group && $action == 'remove') {
                     'groupimages',
                     $newid
                 );
-                redirect($redirecturl . '#g-' . $newid);
+                redirect(new \core\url('/mod/customgroups/view.php', ['instance' => $moduleinstance->id, 'g' => $newid]));
                 exit;
             }
             throw new \core\exception\moodle_exception('cannotcreategroup', 'mod_customgroups');

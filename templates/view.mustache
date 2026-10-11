@@ -31,7 +31,10 @@
         "canapplygroups": true,
         "creategroupurl": "/",
         "applygroupsurl": "/",
+        "group": null,
         "groups": [],
+        "hasgroups": false,
+        "pagingbar": "",
         "viewgroupurl": "/"
     }
 }}
@@ -73,4 +76,9 @@
         {{#str}} inactive, mod_customgroups {{/str}}
     </div>
 {{/active}}
-{{>mod_customgroups/groups}}
+{{#groupview}}
+    {{>mod_customgroups/group}}
+{{/groupview}}
+{{^groupview}}
+    {{>mod_customgroups/grouplist}}
+{{/groupview}}
