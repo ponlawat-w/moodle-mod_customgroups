@@ -12,13 +12,16 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template mod_customgroups/groups
+    @template mod_customgroups/group
 
-    Groups rendering
+    One-group view rendering
 
     Example context (json):
-    [
-        {
+    {
+        "actionurl": "/",
+        "maxmembers": 3,
+        "maxmemberspercountry": 1,
+        "group": {
             "id": 1,
             "name": "Group A",
             "description": "Description",
@@ -27,9 +30,9 @@
             "joinable": true,
             "leaveable": false,
             "editable": false,
-            "viewurl": "/",
             "editurl": "/",
             "removeurl": "/",
+            "shareurl": "/",
             "image": "/",
             "users": [
                 {
@@ -47,15 +50,14 @@
             ],
             "warningtexts": []
         }
-    ]
+    }
 }}
-{{#groups}}
-    <a id="g-{{id}}"></a>
+{{#group}}
     <div class="card my-2">
         <div class="mod_customgroups-cardbody card-body">
             {{#image}}
                 <div class="mod_customgroups-image">
-                    <img src="{{{image}}}">
+                    <img src="{{{image}}}" alt="">
                 </div>
             {{/image}}
             <div class="mod_customgroups-content">
@@ -65,33 +67,42 @@
                         <a href="{{{removeurl}}}" class="btn btn-danger"><i class="fa fa-trash"></i> {{#str}} remove {{/str}}</a>
                     </div>
                 {{/editable}}
-                <h4>
-                    {{#groupview}}
-                        {{name}}
-                    {{/groupview}}
-                    {{^groupview}}
-                        <a href="{{{viewurl}}}">{{name}}</a>
-                    {{/groupview}}
-                </h4>
+                <h4>{{name}}</h4>
                 {{#warningtexts}}
                     <div class="small text-danger"><i class="fa fa-exclamation-circle"></i> {{text}}</div>
                 {{/warningtexts}}
                 {{#joined}}<div class="small text-success"><i class="fa fa-user"></i> {{#str}} joined, mod_customgroups {{/str}}</div>{{/joined}}
-                {{#description}}<div class="px-2 pt-3">{{{description}}}</div>{{/description}}
-                {{#leaveable}}
-                    <form action="{{{actionurl}}}" method="post">
-                        <input type="hidden" name="action" value="leave">
-                        <input type="hidden" name="id" value="{{{id}}}">
-                        <input type="submit" class="btn btn-secondary" value="{{#str}} leave, mod_customgroups {{/str}}">
-                    </form>
-                {{/leaveable}}
-                {{#joinable}}
-                    <form action="{{{actionurl}}}" method="post">
-                        <input type="hidden" name="action" value="join">
-                        <input type="hidden" name="id" value="{{{id}}}">
-                        <input type="submit" class="btn btn-secondary" value="{{#str}} join, mod_customgroups {{/str}}">
-                    </form>
-                {{/joinable}}
+                {{#description}}<div class="mod_customgroups-description px-2 pt-3">{{{description}}}</div>{{/description}}
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                    {{#leaveable}}
+                        <form action="{{{actionurl}}}" method="post">
+                            <input type="hidden" name="action" value="leave">
+                            <input type="hidden" name="id" value="{{{id}}}">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fa fa-user-minus"></i> {{#str}} leave, mod_customgroups {{/str}}
+                            </button>
+                        </form>
+                    {{/leaveable}}
+                    {{#joinable}}
+                        <form action="{{{actionurl}}}" method="post">
+                            <input type="hidden" name="action" value="join">
+                            <input type="hidden" name="id" value="{{{id}}}">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fa fa-user-plus"></i> {{#str}} join, mod_customgroups {{/str}}
+                            </button>
+                        </form>
+                    {{/joinable}}
+                    <button type="button" class="btn btn-secondary"
+                        data-region="mod_customgroups-share"
+                        data-share-url="{{{shareurl}}}"
+                        data-share-title="{{name}}"
+                        data-action="copytoclipboard"
+                        data-clipboard-target="#mod_customgroups-shareurl-{{id}}"
+                        data-clipboard-success-message="{{#str}} linkcopied, mod_customgroups {{/str}}">
+                        <i class="fa fa-share-nodes"></i> {{#str}} sharegroup, mod_customgroups {{/str}}
+                    </button>
+                    <span id="mod_customgroups-shareurl-{{id}}" class="d-none">{{{shareurl}}}</span>
+                </div>
                 <hr>
                 <div class="row mx-2">
                     <div class="col-12{{#countries}} col-lg-6{{/countries}}">
@@ -123,4 +134,4 @@
             </div>
         </div>
     </div>
-{{/groups}}
+{{/group}}
